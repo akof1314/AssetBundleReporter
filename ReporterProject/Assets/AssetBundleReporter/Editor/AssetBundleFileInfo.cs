@@ -28,6 +28,11 @@ public class AssetBundleFileInfo
     /// </summary>
     public List<AssetFileInfo> assets = new List<AssetFileInfo>();
 
+    /// <summary>
+    /// Excel 工作簿的详细链接
+    /// </summary>
+    public string detailLink;
+
     public override string ToString()
     {
         return name;

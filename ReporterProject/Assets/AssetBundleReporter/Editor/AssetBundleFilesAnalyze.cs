@@ -70,23 +70,19 @@ public static class AssetBundleFilesAnalyze
             {
                 try
                 {
-                    Object[] objs = ab.LoadAllAssets<Object>();
-                    foreach (var o in objs)
+                    if (!ab.isStreamedSceneAssetBundle)
                     {
-                        info.AddAsset(o);
-                    }
+                        Object[] objs = ab.LoadAllAssets<Object>();
+                        foreach (var o in objs)
+                        {
+                            info.AddAsset(o);
+                        }
 
-                    // 处理被依赖打包进的资源
-                    foreach (var o in objs)
-                    {
-                        AnalyzeObjectReference(info, o);
-                        //string type = o.GetType().ToString();
-                        //switch (type)
-                        //{
-                        //    case "UnityEngine.Material":
-                        //        AnalyzeMaterial(info, o);
-                        //        break;
-                        //}
+                        // 处理被依赖打包进的资源
+                        foreach (var o in objs)
+                        {
+                            AnalyzeObjectReference(info, o);
+                        }
                     }
                 }
                 finally
@@ -98,42 +94,6 @@ public static class AssetBundleFilesAnalyze
 
         Debug.Log("parse all assetbundle succeed");
         return true;
-    }
-
-    private static void AnalyzeMaterial(AssetBundleFileInfo info, Object o)
-    {
-        var mat = o as Material;
-        if (!mat)
-        {
-            return;
-        }
-
-        var shader = mat.shader;
-        if (shader)
-        {
-            info.AddAsset(shader);
-
-            SerializedObject serializedObject = new SerializedObject(shader);
-            SerializedProperty iterator = serializedObject.GetIterator();
-            bool enterChildren = true;
-            while (iterator.NextVisible(enterChildren))
-            {
-                enterChildren = false;
-                Debug.LogWarning(iterator.name);
-            }
-            serializedObject.Dispose();
-            serializedObject = null;
-        }
-
-        var pros = MaterialEditor.GetMaterialProperties(new Object[] {mat});
-        foreach (var pro in pros)
-        {
-            var tex = pro.textureValue;
-            if (tex)
-            {
-                info.AddAsset(tex);
-            }
-        }
     }
 
     private static void AnalyzeObjectReference(AssetBundleFileInfo info, Object o)

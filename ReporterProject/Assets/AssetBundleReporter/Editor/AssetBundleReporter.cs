@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Drawing;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
@@ -10,8 +11,19 @@ using UnityEditor;
 /// </summary>
 public class AssetBundleReporter
 {
-    public const string kSheetNameAbAssets = "资源使用情况";
-    public const string kSheetNameAbDetail = "每个所包含的具体资源";
+    [MenuItem("AssetBundleReporter/Print")]
+    public static void AnalyzePrint()
+    {
+        string path = EditorUtility.OpenFolderPanel("AssetBundle 保存目录", "", "");
+        if (string.IsNullOrEmpty(path))
+        {
+            return;
+        }
+
+        string bundlePath = path;
+        string outputPath = Path.Combine(path, DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".xlsx");
+        Print(bundlePath, outputPath);
+    }
 
     public static void Print(string bundlePath, string outputPath)
     {
@@ -31,11 +43,14 @@ public class AssetBundleReporter
 
         using (var package = new ExcelPackage(newFile))
         {
-            AssetBundleAbFilesReporter.CreateWorksheetAbFiles(package.Workbook.Worksheets.Add(kSheetNameAbAssets));
-            AssetBundleAbFileDetailsReporter.CreateWorksheetAbDetails(package.Workbook.Worksheets.Add(kSheetNameAbDetail));
+            AssetBundleAbFilesReporter.CreateWorksheetAbFiles(package.Workbook.Worksheets);
+            AssetBundleAbFileDetailsReporter.CreateWorksheetAbDetails(package.Workbook.Worksheets);
 
             AssetBundleAbFilesReporter.FillWorksheetAbFiles(package.Workbook.Worksheets[1]);
             AssetBundleAbFileDetailsReporter.FillWorksheetAbDetails(package.Workbook.Worksheets[2]);
+
+            AssetBundleAbFilesReporter.FillWorksheetAbFilesDetailLink(package.Workbook.Worksheets[1]);
+
             package.Save();
         }
 
@@ -43,11 +58,33 @@ public class AssetBundleReporter
         EditorUtility.ClearProgressBar();
     }
 
-    private static void CreateWorksheetAbDetail(ExcelWorksheet ws)
+    public static void CreateWorksheetBase(ExcelWorksheet ws, string title, int colCount)
     {
-        // 测试数据
-        ws.Cells[3, 1].Value = "SubTerrainObjs_1_1.assetbundle";
-        ws.Cells[300, 1].Value = "Terrain_Data_1_8.assetbundle";
-        ws.Cells[3000, 3].Value = "Terrain_Data_3_3.assetbundle";
+        // 全体颜色
+        ws.Cells.Style.Font.Color.SetColor(ColorTranslator.FromHtml("#3d4d65"));
+        {
+            // 边框样式
+            var border = ws.Cells.Style.Border;
+            border.Bottom.Style = border.Top.Style = border.Left.Style = border.Right.Style
+                = ExcelBorderStyle.Thin;
+
+            // 边框颜色
+            var clr = ColorTranslator.FromHtml("#B2C6C9");
+            border.Bottom.Color.SetColor(clr);
+            border.Top.Color.SetColor(clr);
+            border.Left.Color.SetColor(clr);
+            border.Right.Color.SetColor(clr);
+        }
+
+        // 标题
+        ws.Cells[1, 1].Value = title;
+        using (var range = ws.Cells[1, 1, 1, colCount])
+        {
+            range.Merge = true;
+            range.Style.Font.Bold = true;
+            range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            range.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+        }
+        ws.Row(1).Height = 30;
     }
 }
