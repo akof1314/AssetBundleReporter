@@ -43,11 +43,11 @@ public class AssetBundleReporter
 
         using (var package = new ExcelPackage(newFile))
         {
-            AssetBundleAbFilesReporter.CreateWorksheetAbFiles(package.Workbook.Worksheets);
-            AssetBundleAbFileDetailsReporter.CreateWorksheetAbDetails(package.Workbook.Worksheets);
+            AssetBundleFilesReporter.CreateWorksheetAbFiles(package.Workbook.Worksheets);
+            AssetBundleDetailsReporter.CreateWorksheetAbDetails(package.Workbook.Worksheets);
 
-            AssetBundleAbFilesReporter.FillWorksheetAbFiles(package.Workbook.Worksheets[1]);
-            AssetBundleAbFileDetailsReporter.FillWorksheetAbDetails(package.Workbook.Worksheets[2]);
+            AssetBundleFilesReporter.FillWorksheetAbFiles(package.Workbook.Worksheets[1]);
+            AssetBundleDetailsReporter.FillWorksheetAbDetails(package.Workbook.Worksheets[2]);
 
             package.Save();
         }

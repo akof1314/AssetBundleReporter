@@ -4,7 +4,7 @@ using System.Drawing;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 
-public static class AssetBundleAbFilesReporter
+public static class AssetBundleFilesReporter
 {
     public static void CreateWorksheetAbFiles(ExcelWorksheets wss)
     {

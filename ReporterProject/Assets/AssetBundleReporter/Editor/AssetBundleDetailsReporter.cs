@@ -3,7 +3,7 @@ using System.Drawing;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 
-public static class AssetBundleAbFileDetailsReporter
+public static class AssetBundleDetailsReporter
 {
     public static void CreateWorksheetAbDetails(ExcelWorksheets wss)
     {
