@@ -22,4 +22,9 @@ public class AssetFileInfo
     /// 被包含所在的AssetBundle文件名称列表
     /// </summary>
     public HashSet<string> includedBundles = new HashSet<string>();
+
+    public override string ToString()
+    {
+        return name;
+    }
 }

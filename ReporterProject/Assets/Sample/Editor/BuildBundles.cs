@@ -31,8 +31,9 @@ public class BuildBundles
     [MenuItem("Tool/Build Reporter")]
     public static void Reporter()
     {
-        string bundlePath = Path.Combine(Application.dataPath, "../" + GetBuildTarget().ToString());
-        string outputPath = Path.Combine(Application.dataPath, "../" + GetBuildTarget().ToString() + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".xlsx");
+        string directoryPath = Path.GetDirectoryName(Application.dataPath);
+        string bundlePath = Path.Combine(directoryPath, GetBuildTarget().ToString());
+        string outputPath = Path.Combine(directoryPath, GetBuildTarget().ToString() + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".xlsx");
         AssetBundleReporter.Print(bundlePath, outputPath);
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 
 public static class AssetBundleAbFilesReporter
 {
-    public static void CreateWorksheetAbAssets(ExcelWorksheet ws)
+    public static void CreateWorksheetAbFiles(ExcelWorksheet ws)
     {
         // 标签颜色
         ws.TabColor = ColorTranslator.FromHtml("#32b1fa");
@@ -68,7 +68,7 @@ public static class AssetBundleAbFilesReporter
         ws.View.FreezePanes(3, 1);
     }
 
-    public static void FillWorksheetAbAssets(ExcelWorksheet ws)
+    public static void FillWorksheetAbFiles(ExcelWorksheet ws)
     {
         // 测试数据
         //ws.Cells[3, 1].Value = "SubTerrainObjs_1_1.assetbundle";
@@ -91,6 +91,30 @@ public static class AssetBundleAbFilesReporter
         foreach (var info in infos)
         {
             ws.Cells[startRow, 1].Value = info.name;
+
+            int count = info.GetAssetCount("Mesh");
+            if (count > 0)
+            {
+                ws.Cells[startRow, 2].Value = count;
+            }
+
+            count = info.GetAssetCount("Material");
+            if (count > 0)
+            {
+                ws.Cells[startRow, 3].Value = count;
+            }
+
+            count = info.GetAssetCount("Texture2D");
+            if (count > 0)
+            {
+                ws.Cells[startRow, 4].Value = count;
+            }
+
+            count = info.GetAssetCount("Shader");
+            if (count > 0)
+            {
+                ws.Cells[startRow, 5].Value = count;
+            }
 
             startRow++;
         }

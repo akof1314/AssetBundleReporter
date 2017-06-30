@@ -14,12 +14,70 @@ public class AssetBundleFileInfo
     public string path;
 
     /// <summary>
-    /// 依赖的AssetBundle列表
+    /// 直接依赖的AssetBundle列表
     /// </summary>
-    public List<string> depends;
+    public string[] directDepends;
+
+    /// <summary>
+    /// 所有依赖的AssetBundle列表
+    /// </summary>
+    public string[] allDepends;
 
     /// <summary>
     /// 包含的资源名称
     /// </summary>
     public List<AssetFileInfo> assets = new List<AssetFileInfo>();
+
+    public override string ToString()
+    {
+        return name;
+    }
+
+    /// <summary>
+    /// 获取相同类型的资产数量
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    public int GetAssetCount(string type)
+    {
+        int count = 0;
+        foreach (var info in assets)
+        {
+            if (info.type == type)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /// <summary>
+    /// 添加资产
+    /// </summary>
+    /// <param name="o"></param>
+    public void AddAsset(Object o)
+    {
+        int guid = o.GetInstanceID();
+
+        foreach (var asset in assets)
+        {
+            if (asset.guid == guid)
+            {
+                return;
+            }
+        }
+
+        AssetFileInfo info2 = new AssetFileInfo
+        {
+            name = o.name,
+            guid = guid,
+            type = o.GetType().ToString()
+        };
+        if (info2.type.StartsWith("UnityEngine."))
+        {
+            info2.type = info2.type.Substring(12);
+        }
+
+        assets.Add(info2);
+    }
 }

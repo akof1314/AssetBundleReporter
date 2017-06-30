@@ -2,6 +2,7 @@
 using System.Drawing;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using UnityEditor;
 
 /// <summary>
 /// AssetBundle报告
@@ -14,7 +15,14 @@ public class AssetBundleReporter
 
     public static void Print(string bundlePath, string outputPath)
     {
-        AssetBundleFilesAnalyze.Analyze(bundlePath);
+        EditorUtility.DisplayProgressBar("AssetBundle报告", "正在分析 AssetBundle 文件...", 0.35f);
+        if (!AssetBundleFilesAnalyze.Analyze(bundlePath))
+        {
+            EditorUtility.ClearProgressBar();
+            return;
+        }
+
+        EditorUtility.DisplayProgressBar("AssetBundle报告", "正在写入 Excel 文件...", 0.85f);
         var newFile = new FileInfo(outputPath);
         if (newFile.Exists)
         {
@@ -23,14 +31,16 @@ public class AssetBundleReporter
 
         using (var package = new ExcelPackage(newFile))
         {
-            AssetBundleAbFilesReporter.CreateWorksheetAbAssets(package.Workbook.Worksheets.Add(kSheetNameAbAssets));
-            CreateWorksheetAbDetail(package.Workbook.Worksheets.Add(kSheetNameAbDetail));
+            AssetBundleAbFilesReporter.CreateWorksheetAbFiles(package.Workbook.Worksheets.Add(kSheetNameAbAssets));
+            AssetBundleAbFileDetailsReporter.CreateWorksheetAbDetails(package.Workbook.Worksheets.Add(kSheetNameAbDetail));
 
-            AssetBundleAbFilesReporter.FillWorksheetAbAssets(package.Workbook.Worksheets[1]);
+            AssetBundleAbFilesReporter.FillWorksheetAbFiles(package.Workbook.Worksheets[1]);
+            AssetBundleAbFileDetailsReporter.FillWorksheetAbDetails(package.Workbook.Worksheets[2]);
             package.Save();
         }
 
         AssetBundleFilesAnalyze.Clear();
+        EditorUtility.ClearProgressBar();
     }
 
     private static void CreateWorksheetAbDetail(ExcelWorksheet ws)
