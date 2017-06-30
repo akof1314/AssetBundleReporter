@@ -4,7 +4,7 @@ using UnityEngine;
 public class AssetBundleFileInfo
 {
     /// <summary>
-    /// 名称
+    /// 名称（不会重名）
     /// </summary>
     public string name;
 
@@ -21,8 +21,5 @@ public class AssetBundleFileInfo
     /// <summary>
     /// 包含的资源名称
     /// </summary>
-    public List<string> meshs;
-    public List<string> materials;
-    public List<string> textures;
-    public List<string> shaders;
+    public List<AssetFileInfo> assets = new List<AssetFileInfo>();
 }
