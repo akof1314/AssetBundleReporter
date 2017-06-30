@@ -49,8 +49,6 @@ public class AssetBundleReporter
             AssetBundleAbFilesReporter.FillWorksheetAbFiles(package.Workbook.Worksheets[1]);
             AssetBundleAbFileDetailsReporter.FillWorksheetAbDetails(package.Workbook.Worksheets[2]);
 
-            AssetBundleAbFilesReporter.FillWorksheetAbFilesDetailLink(package.Workbook.Worksheets[1]);
-
             package.Save();
         }
 

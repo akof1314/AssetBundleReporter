@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,6 +11,11 @@ public static class AssetBundleFilesAnalyze
     public static List<AssetBundleFileInfo> GetAllAssetBundleFileInfos()
     {
         return sAssetBundleFileInfos;
+    }
+
+    public static AssetBundleFileInfo GetAssetBundleFileInfo(string name)
+    {
+        return sAssetBundleFileInfos.Find(info => info.name == name);
     }
 
     public static void Clear()
@@ -61,6 +67,25 @@ public static class AssetBundleFilesAnalyze
         }
         manifestAb.Unload(true);
 
+        // 分析被依赖的关系
+        foreach (var info in sAssetBundleFileInfos)
+        {
+            List<string> beDepends = new List<string>();
+            foreach (var info2 in sAssetBundleFileInfos)
+            {
+                if (info2.name == info.name)
+                {
+                    continue;
+                }
+
+                if (info2.allDepends.Contains(info.name))
+                {
+                    beDepends.Add(info2.name);
+                }
+            }
+            info.beDepends = beDepends.ToArray();
+        }
+
         // 以下不能保证百分百找到所有的资源，最准确的方式是解密AssetBundle格式
         Debug.Log("parse all assetbundle");
         foreach (var info in sAssetBundleFileInfos)
@@ -82,6 +107,7 @@ public static class AssetBundleFilesAnalyze
                         foreach (var o in objs)
                         {
                             AnalyzeObjectReference(info, o);
+                            AnalyzeComponent(info, o);
                         }
                     }
                 }
@@ -96,6 +122,11 @@ public static class AssetBundleFilesAnalyze
         return true;
     }
 
+    /// <summary>
+    /// 分析对象的引用
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="o"></param>
     private static void AnalyzeObjectReference(AssetBundleFileInfo info, Object o)
     {
         var serializedObject = new SerializedObject(o);
@@ -110,5 +141,32 @@ public static class AssetBundleFilesAnalyze
             }
         }
         serializedObject.Dispose();
+    }
+
+    /// <summary>
+    /// 分析脚本的引用（这只在脚本在工程里时才有效）
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="o"></param>
+    private static void AnalyzeComponent(AssetBundleFileInfo info, Object o)
+    {
+        var go = o as GameObject;
+        if (!go)
+        {
+            return;
+        }
+
+        var components = go.GetComponentsInChildren<Component>(true);
+        foreach (var component in components)
+        {
+            if (component as MonoBehaviour)
+            {
+                string type = component.GetType().ToString();
+                if (!type.StartsWith("UnityEngine."))
+                {
+                    info.AddAsset(component);
+                }
+            }
+        }
     }
 }

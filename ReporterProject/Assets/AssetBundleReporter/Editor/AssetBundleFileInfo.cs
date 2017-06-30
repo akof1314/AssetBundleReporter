@@ -24,6 +24,11 @@ public class AssetBundleFileInfo
     public string[] allDepends;
 
     /// <summary>
+    /// 所有被依赖的AssetBundle列表
+    /// </summary>
+    public string[] beDepends;
+
+    /// <summary>
     /// 包含的资源名称
     /// </summary>
     public List<AssetFileInfo> assets = new List<AssetFileInfo>();
@@ -31,7 +36,7 @@ public class AssetBundleFileInfo
     /// <summary>
     /// Excel 工作簿的详细链接
     /// </summary>
-    public string detailLink;
+    public OfficeOpenXml.ExcelHyperLink detailHyperLink;
 
     public override string ToString()
     {
@@ -81,6 +86,12 @@ public class AssetBundleFileInfo
         if (info2.type.StartsWith("UnityEngine."))
         {
             info2.type = info2.type.Substring(12);
+        }
+        else
+        {
+            // FIXME 其他认为都是脚本？
+            info2.name = info2.type;
+            info2.type = AssetFileInfoType.monoScript;
         }
 
         assets.Add(info2);
