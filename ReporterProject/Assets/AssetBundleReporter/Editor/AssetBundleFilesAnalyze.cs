@@ -7,6 +7,7 @@ using UnityEngine;
 public static class AssetBundleFilesAnalyze
 {
     private static List<AssetBundleFileInfo> sAssetBundleFileInfos;
+    private static Dictionary<int, AssetFileInfo> sAssetFileInfos;
 
     public static List<AssetBundleFileInfo> GetAllAssetBundleFileInfos()
     {
@@ -18,12 +19,38 @@ public static class AssetBundleFilesAnalyze
         return sAssetBundleFileInfos.Find(info => info.name == name);
     }
 
+    public static Dictionary<int, AssetFileInfo> GetAllAssetFileInfo()
+    {
+        return sAssetFileInfos;
+    }
+
+    public static AssetFileInfo GetAssetFileInfo(int guid)
+    {
+        if (sAssetFileInfos == null)
+        {
+            sAssetFileInfos = new Dictionary<int, AssetFileInfo>();
+        }
+
+        AssetFileInfo info;
+        if (!sAssetFileInfos.TryGetValue(guid, out info))
+        {
+            info = new AssetFileInfo { guid = guid };
+            sAssetFileInfos.Add(guid, info);
+        }
+        return info;
+    }
+
     public static void Clear()
     {
         if (sAssetBundleFileInfos != null)
         {
             sAssetBundleFileInfos.Clear();
             sAssetBundleFileInfos = null;
+        }
+        if (sAssetFileInfos != null)
+        {
+            sAssetFileInfos.Clear();
+            sAssetFileInfos = null;
         }
     }
 

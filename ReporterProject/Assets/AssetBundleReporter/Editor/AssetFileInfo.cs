@@ -10,6 +10,8 @@ public class AssetFileInfo
 
     /// <summary>
     /// 唯一ID 
+    /// 需要取得 PathID 才能确保唯一性
+    /// 这里只能用名称和类型代替
     /// </summary>
     public int guid;
 
@@ -21,7 +23,7 @@ public class AssetFileInfo
     /// <summary>
     /// 被包含所在的AssetBundle文件名称列表
     /// </summary>
-    public HashSet<string> includedBundles = new HashSet<string>();
+    public HashSet<AssetBundleFileInfo> includedBundles = new HashSet<AssetBundleFileInfo>();
 
     public override string ToString()
     {

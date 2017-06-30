@@ -6,13 +6,13 @@ using OfficeOpenXml.Style;
 
 public static class AssetBundleFilesReporter
 {
-    public static void CreateWorksheetAbFiles(ExcelWorksheets wss)
+    public static void CreateWorksheet(ExcelWorksheets wss)
     {
-        ExcelWorksheet ws = wss.Add("资源使用情况");
+        ExcelWorksheet ws = wss.Add("AB文件列表");
 
         // 标签颜色
         ws.TabColor = ColorTranslator.FromHtml("#32b1fa");
-        AssetBundleReporter.CreateWorksheetBase(ws, "AssetBundle 文件的资源使用情况", 5);
+        AssetBundleReporter.CreateWorksheetBase(ws, "AssetBundle 文件列表", 6);
 
         // 列头
         ws.Cells[2, 1].Value = "AssetBundle 名称";
@@ -47,7 +47,7 @@ public static class AssetBundleFilesReporter
         ws.View.FreezePanes(3, 1);
     }
 
-    public static void FillWorksheetAbFiles(ExcelWorksheet ws)
+    public static void FillWorksheet(ExcelWorksheet ws)
     {
         int startRow = 3;
 
@@ -91,6 +91,6 @@ public static class AssetBundleFilesReporter
             startRow++;
         }
 
-        ws.Cells[1, 1].Value = ws.Cells[1, 1].Value + "       总 AB 数 (" + infos.Count + ")";
+        ws.Cells[1, 1].Value = ws.Cells[1, 1].Value + " (" + infos.Count + ")";
     }
 }

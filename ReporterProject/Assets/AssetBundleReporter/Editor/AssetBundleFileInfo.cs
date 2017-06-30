@@ -67,7 +67,20 @@ public class AssetBundleFileInfo
     /// <param name="o"></param>
     public void AddAsset(Object o)
     {
-        int guid = o.GetInstanceID();
+        string name2 = o.name;
+        string type = o.GetType().ToString();
+        if (type.StartsWith("UnityEngine."))
+        {
+            type = type.Substring(12);
+        }
+        else
+        {
+            // FIXME 其他认为都是脚本？
+            name2 = type;
+            type = AssetFileInfoType.monoScript;
+        }
+
+        int guid = (name2 + type).GetHashCode();
 
         foreach (var asset in assets)
         {
@@ -77,22 +90,10 @@ public class AssetBundleFileInfo
             }
         }
 
-        AssetFileInfo info2 = new AssetFileInfo
-        {
-            name = o.name,
-            guid = guid,
-            type = o.GetType().ToString()
-        };
-        if (info2.type.StartsWith("UnityEngine."))
-        {
-            info2.type = info2.type.Substring(12);
-        }
-        else
-        {
-            // FIXME 其他认为都是脚本？
-            info2.name = info2.type;
-            info2.type = AssetFileInfoType.monoScript;
-        }
+        AssetFileInfo info2 = AssetBundleFilesAnalyze.GetAssetFileInfo(guid);
+        info2.name = name2;
+        info2.type = type;
+        info2.includedBundles.Add(this);
 
         assets.Add(info2);
     }

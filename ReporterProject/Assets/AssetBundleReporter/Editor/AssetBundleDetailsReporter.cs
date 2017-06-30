@@ -5,7 +5,7 @@ using OfficeOpenXml.Style;
 
 public static class AssetBundleDetailsReporter
 {
-    public static void CreateWorksheetAbDetails(ExcelWorksheets wss)
+    public static void CreateWorksheet(ExcelWorksheets wss)
     {
         ExcelWorksheet ws = wss.Add("每个所包含的具体资源");
 
@@ -20,7 +20,7 @@ public static class AssetBundleDetailsReporter
         ws.Column(4).Width = 50;
     }
 
-    public static void FillWorksheetAbDetails(ExcelWorksheet ws)
+    public static void FillWorksheet(ExcelWorksheet ws)
     {
         int startRow = 2;
 
@@ -61,6 +61,7 @@ public static class AssetBundleDetailsReporter
         startRow++;
         ws.Cells[startRow, 1].Value = type + " (" + count + ")";
         SetRangeStyle(ws.Cells[startRow, 1, startRow, 4]);
+        Color redColor = ColorTranslator.FromHtml("#FF0049");
 
         int startCol = 1;
         foreach (var fileInfo in info.assets)
@@ -73,6 +74,12 @@ public static class AssetBundleDetailsReporter
                 }
 
                 ws.Cells[startRow, startCol].Value = fileInfo.name;
+
+                // 冗余则红色显示
+                if (fileInfo.includedBundles.Count > 1)
+                {
+                    ws.Cells[startRow, startCol].Style.Font.Color.SetColor(redColor);
+                }
 
                 startCol++;
                 if (startCol > 4)
