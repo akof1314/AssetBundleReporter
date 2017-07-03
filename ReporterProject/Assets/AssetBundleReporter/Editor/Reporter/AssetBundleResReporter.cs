@@ -11,7 +11,7 @@ namespace WuHuan
             ExcelWorksheet ws = wss.Add("资源列表");
 
             // 标签颜色
-            ws.TabColor = ColorTranslator.FromHtml("#b490f5");
+            ws.TabColor = ColorTranslator.FromHtml("#70ad47");
             AssetBundleReporter.CreateWorksheetBase(ws, "全部资源列表", 4);
 
             // 列头
@@ -35,7 +35,7 @@ namespace WuHuan
 
             // 列宽
             ws.Column(1).Width = 50;
-            ws.Column(2).Width = 15;
+            ws.Column(2).Width = 30;
             ws.Column(3).Width = 15;
             ws.Column(3).Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
@@ -54,6 +54,8 @@ namespace WuHuan
                 ws.Cells[startRow, 1].Value = info.name;
                 ws.Cells[startRow, 2].Value = info.type;
                 ws.Cells[startRow, 3].Value = info.includedBundles.Count;
+
+                info.detailHyperLink.ReferenceAddress = ws.Cells[startRow, 1].FullAddress;
 
                 int startCol = 4;
                 foreach (var bundleFileInfo in info.includedBundles)

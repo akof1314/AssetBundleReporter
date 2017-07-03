@@ -39,11 +39,11 @@ namespace WuHuan
 
             // 列宽
             ws.Column(1).Width = 100;
-            ws.Column(2).Width = 15;
-            ws.Column(3).Width = 15;
-            ws.Column(4).Width = 15;
-            ws.Column(5).Width = 15;
-            ws.Column(6).Width = 15;
+            for (int i = 2; i <= 6; i++)
+            {
+                ws.Column(i).Width = 15;
+                ws.Column(i).Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            }
 
             // 冻结前两行
             ws.View.FreezePanes(3, 1);

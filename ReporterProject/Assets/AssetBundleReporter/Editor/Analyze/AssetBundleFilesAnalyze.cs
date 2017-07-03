@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 
 namespace WuHuan
@@ -199,6 +200,11 @@ namespace WuHuan
             var components = go.GetComponentsInChildren<Component>(true);
             foreach (var component in components)
             {
+                if (!component)
+                {
+                    continue;
+                }
+
                 if (component as MonoBehaviour)
                 {
                     string type = component.GetType().ToString();
@@ -206,6 +212,45 @@ namespace WuHuan
                     {
                         AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(component, info);
                     }
+                }
+                else
+                {
+                    AnalyzeObjectReference(info, component);
+                    AnalyzeAnimator(info, component);
+                }
+            }
+        }
+
+        private static void AnalyzeAnimator(AssetBundleFileInfo info, Object o)
+        {
+            var animator = o as Animator;
+            if (!animator)
+            {
+                return;
+            }
+
+            RuntimeAnimatorController rac = animator.runtimeAnimatorController;
+            if (!rac)
+            {
+                return;
+            }
+            
+            AnimatorOverrideController aoc = rac as AnimatorOverrideController;
+            if (aoc)
+            {
+                AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(aoc.runtimeAnimatorController, info);
+
+                foreach (var clipPair in aoc.clips)
+                {
+                    AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(clipPair.originalClip, info);
+                    AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(clipPair.overrideClip, info);
+                }
+            }
+            else
+            {
+                foreach (var clip in rac.animationClips)
+                {
+                    AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(clip, info);
                 }
             }
         }

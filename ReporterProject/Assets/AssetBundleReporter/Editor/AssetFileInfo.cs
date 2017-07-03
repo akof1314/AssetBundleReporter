@@ -27,7 +27,7 @@ namespace WuHuan
         /// <summary>
         /// 属性
         /// </summary>
-        public List<KeyValuePair<string, string>> propertys;
+        public List<KeyValuePair<string, object>> propertys;
 
         /// <summary>
         /// 被包含所在的AssetBundle文件名称列表

@@ -44,6 +44,9 @@ namespace WuHuan
                 FillAssetByType(info, AssetFileInfoType.texture2D, ws, ref startRow);
                 FillAssetByType(info, AssetFileInfoType.sprite, ws, ref startRow);
                 FillAssetByType(info, AssetFileInfoType.shader, ws, ref startRow);
+                FillAssetByType(info, AssetFileInfoType.animatorController, ws, ref startRow);
+                FillAssetByType(info, AssetFileInfoType.animatorOverrideController, ws, ref startRow);
+                FillAssetByType(info, AssetFileInfoType.animationClip, ws, ref startRow);
                 FillAssetByType(info, AssetFileInfoType.monoScript, ws, ref startRow);
 
                 FillAssetDepends(info, ws, ref startRow);
@@ -76,6 +79,7 @@ namespace WuHuan
                     }
 
                     ws.Cells[startRow, startCol].Value = fileInfo.name;
+                    ws.Cells[startRow, startCol].Hyperlink = fileInfo.detailHyperLink;
 
                     // 冗余则红色显示
                     if (fileInfo.includedBundles.Count > 1)

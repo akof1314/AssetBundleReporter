@@ -11,5 +11,8 @@ namespace WuHuan
         public static readonly string shader = "Shader";
         public static readonly string sprite = "Sprite";
         public static readonly string monoScript = "MonoScript";
+        public static readonly string animatorController = "AnimatorController";
+        public static readonly string animatorOverrideController = "AnimatorOverrideController";
+        public static readonly string animationClip = "AnimationClip";
     }
 }

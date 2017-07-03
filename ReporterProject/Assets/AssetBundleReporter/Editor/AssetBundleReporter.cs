@@ -61,6 +61,14 @@ namespace WuHuan
                 {
                     "顶点数","面数","子网格数","网格压缩","Read/Write"
                 });
+                AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, "Material", "Material 资源列表", new[]
+                {
+                    "依赖Shader","依赖纹理"
+                });
+                AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, "AnimationClip", "AnimationClip 资源列表", new[]
+                {
+                    "总曲线数","Constant曲线数","Dense曲线数","Stream曲线数","事件数","内存占用"
+                });
 
                 package.Save();
             }

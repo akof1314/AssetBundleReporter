@@ -44,6 +44,7 @@ namespace WuHuan
             for (int i = 0; i < columnNames.Length; i++)
             {
                 ws.Column(2 + i).Width = 15;
+                ws.Column(2 + i).Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
             }
             ws.Column(abCountCol).Width = 15;
             ws.Column(abCountCol).Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -63,6 +64,7 @@ namespace WuHuan
                 }
 
                 ws.Cells[startRow, 1].Value = info.name;
+                info.detailHyperLink.ReferenceAddress = ws.Cells[startRow, 1].FullAddress;
 
                 int startCol = 2;
                 foreach (var property in info.propertys)
