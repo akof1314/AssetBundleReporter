@@ -140,7 +140,7 @@ namespace WuHuan
                             Object[] objs = ab.LoadAllAssets<Object>();
                             foreach (var o in objs)
                             {
-                                info.AddAsset(o);
+                                AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(o, info);
                             }
 
                             // 处理被依赖打包进的资源
@@ -175,7 +175,7 @@ namespace WuHuan
             {
                 if (it.propertyType == SerializedPropertyType.ObjectReference && it.objectReferenceValue != null)
                 {
-                    info.AddAsset(it.objectReferenceValue);
+                    AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(it.objectReferenceValue, info);
 
                     AnalyzeObjectReference(info, it.objectReferenceValue);
                 }
@@ -204,7 +204,7 @@ namespace WuHuan
                     string type = component.GetType().ToString();
                     if (!type.StartsWith("UnityEngine."))
                     {
-                        info.AddAsset(component);
+                        AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(component, info);
                     }
                 }
             }

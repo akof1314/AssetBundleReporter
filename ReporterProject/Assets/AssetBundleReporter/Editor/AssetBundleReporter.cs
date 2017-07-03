@@ -53,6 +53,15 @@ namespace WuHuan
                 AssetBundleDetailsReporter.FillWorksheet(package.Workbook.Worksheets[2]);
                 AssetBundleResReporter.FillWorksheet(package.Workbook.Worksheets[3]);
 
+                AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, "Texture2D", "Texture2D 资源列表", new[]
+                {
+                    "宽度","高度","格式","MipMap功能","Read/Write","内存占用"
+                });
+                AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, "Mesh", "Mesh 资源列表", new[]
+                {
+                    "顶点数","面数","子网格数","网格压缩","Read/Write"
+                });
+
                 package.Save();
             }
 

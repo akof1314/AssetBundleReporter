@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
-using UnityEngine;
 
 namespace WuHuan
 {
@@ -40,7 +37,7 @@ namespace WuHuan
             ws.Column(1).Width = 50;
             ws.Column(2).Width = 15;
             ws.Column(3).Width = 15;
-            ws.Column(4).Width = 100;
+            ws.Column(3).Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
             // 冻结前两行
             ws.View.FreezePanes(3, 1);
@@ -49,6 +46,7 @@ namespace WuHuan
         public static void FillWorksheet(ExcelWorksheet ws)
         {
             int startRow = 3;
+            int maxCol = 4;
 
             var dicts = AssetBundleFilesAnalyze.GetAllAssetFileInfo();
             foreach (var info in dicts.Values)
@@ -57,26 +55,27 @@ namespace WuHuan
                 ws.Cells[startRow, 2].Value = info.type;
                 ws.Cells[startRow, 3].Value = info.includedBundles.Count;
 
-                // 合并
-                int count = info.includedBundles.Count;
-                if (count > 1)
-                {
-                    ws.Cells[startRow, 1, startRow + count - 1, 1].Merge = true;
-                    ws.Cells[startRow, 2, startRow + count - 1, 2].Merge = true;
-                    ws.Cells[startRow, 3, startRow + count - 1, 3].Merge = true;
-                }
-
-                startRow--;
+                int startCol = 4;
                 foreach (var bundleFileInfo in info.includedBundles)
                 {
-                    startRow++;
-                    ws.Cells[startRow, 4].Value = bundleFileInfo.name;
-                    ws.Cells[startRow, 4].Hyperlink = bundleFileInfo.detailHyperLink;
+                    ws.Cells[startRow, startCol].Value = bundleFileInfo.name;
+                    ws.Cells[startRow, startCol++].Hyperlink = bundleFileInfo.detailHyperLink;
                 }
+                maxCol = System.Math.Max(--startCol, maxCol);
                 startRow++;
             }
 
             ws.Cells[1, 1].Value = ws.Cells[1, 1].Value + " (" + dicts.Values.Count + ")";
+
+            // 具体所需要的列
+            using (var range = ws.Cells[2, 4, 2, maxCol])
+            {
+                range.Merge = true;
+            }
+            for (int i = 4; i <= maxCol; i++)
+            {
+                ws.Column(i).Width = 100;
+            }
         }
     }
 }

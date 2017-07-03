@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
 namespace WuHuan
 {
@@ -66,41 +65,16 @@ namespace WuHuan
             return count;
         }
 
-        /// <summary>
-        /// 添加资产
-        /// </summary>
-        /// <param name="o"></param>
-        public void AddAsset(Object o)
+        public bool IsAssetContain(int guid)
         {
-            string name2 = o.name;
-            string type = o.GetType().ToString();
-            if (type.StartsWith("UnityEngine."))
-            {
-                type = type.Substring(12);
-            }
-            else
-            {
-                // FIXME 其他认为都是脚本？
-                name2 = type;
-                type = AssetFileInfoType.monoScript;
-            }
-
-            int guid = (name2 + type).GetHashCode();
-
             foreach (var asset in assets)
             {
                 if (asset.guid == guid)
                 {
-                    return;
+                    return true;
                 }
             }
-
-            AssetFileInfo info2 = AssetBundleFilesAnalyze.GetAssetFileInfo(guid);
-            info2.name = name2;
-            info2.type = type;
-            info2.includedBundles.Add(this);
-
-            assets.Add(info2);
+            return false;
         }
     }
 }

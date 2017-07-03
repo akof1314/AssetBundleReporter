@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
 namespace WuHuan
 {
@@ -26,9 +25,19 @@ namespace WuHuan
         public string type;
 
         /// <summary>
+        /// 属性
+        /// </summary>
+        public List<KeyValuePair<string, string>> propertys;
+
+        /// <summary>
         /// 被包含所在的AssetBundle文件名称列表
         /// </summary>
         public HashSet<AssetBundleFileInfo> includedBundles = new HashSet<AssetBundleFileInfo>();
+
+        /// <summary>
+        /// Excel 工作簿的详细链接
+        /// </summary>
+        public OfficeOpenXml.ExcelHyperLink detailHyperLink;
 
         public override string ToString()
         {
