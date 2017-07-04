@@ -209,7 +209,7 @@ namespace WuHuan
                     string type = component.GetType().ToString();
                     if (!type.StartsWith("UnityEngine."))
                     {
-                        AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(component, info);
+                        AnalyzeObjectReference(info, component);
                     }
                 }
                 else

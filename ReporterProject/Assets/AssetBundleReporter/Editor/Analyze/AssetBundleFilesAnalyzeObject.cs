@@ -27,11 +27,14 @@ namespace WuHuan
             {
                 type = "AnimatorController";
             }
+            else if (type == "UnityEditor.MonoScript")
+            {
+                type = "MonoScript";
+            }
             else
             {
-                // FIXME 其他认为都是脚本？
-                name2 = type;
-                type = AssetFileInfoType.monoScript;
+                Debug.LogError("What's this? " + type);
+                return;
             }
 
             int guid = (name2 + type).GetHashCode();
@@ -145,6 +148,10 @@ namespace WuHuan
 
                 if (property5.objectReferenceValue)
                 {
+                    if (!string.IsNullOrEmpty(texNames))
+                    {
+                        texNames += ", ";
+                    }
                     texNames += property5.objectReferenceValue.name;
                 }
             }

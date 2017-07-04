@@ -68,9 +68,11 @@ namespace WuHuan
             {
                 ws.Column(2 + i).Width = 15;
                 ws.Column(2 + i).Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                ws.Column(2 + i).Style.VerticalAlignment = ExcelVerticalAlignment.Top;
             }
             ws.Column(abCountCol).Width = 15;
             ws.Column(abCountCol).Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+            ws.Column(abCountCol).Style.VerticalAlignment = ExcelVerticalAlignment.Top;
 
             // 冻结前两行
             ws.View.FreezePanes(3, 1);
@@ -121,6 +123,10 @@ namespace WuHuan
             {
                 case "Texture2D":
                     ws.Column(7).Style.Numberformat.Format = "#,##0";
+                    break;
+                case "Material":
+                    ws.Column(2).Width = 40;
+                    ws.Column(3).Width = 50;
                     break;
                 case "AnimationClip":
                     ws.Column(7).Style.Numberformat.Format = "#,##0";
