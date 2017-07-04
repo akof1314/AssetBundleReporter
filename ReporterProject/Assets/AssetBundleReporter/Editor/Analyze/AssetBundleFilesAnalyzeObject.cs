@@ -74,6 +74,12 @@ namespace WuHuan
                 return AnalyzeMaterial(mat);
             }
 
+            AudioClip audioClip = o as AudioClip;
+            if (audioClip)
+            {
+                return AnalyzeAudioClip(audioClip);
+            }
+
             AnimationClip clip = o as AnimationClip;
             if (clip)
             {
@@ -136,6 +142,25 @@ namespace WuHuan
                 }
             }
             propertys.Add(new KeyValuePair<string, object>("依赖纹理", texNames));
+            return propertys;
+        }
+
+        private static List<KeyValuePair<string, object>> AnalyzeAudioClip(AudioClip audioClip)
+        {
+            var propertys = new List<KeyValuePair<string, object>>
+            {
+                new KeyValuePair<string, object>("加载方式", audioClip.loadType.ToString()),
+                new KeyValuePair<string, object>("预加载", audioClip.preloadAudioData.ToString()),
+                new KeyValuePair<string, object>("频率", audioClip.frequency),
+                new KeyValuePair<string, object>("长度", audioClip.length)
+            };
+
+            var serializedObject = new SerializedObject(audioClip);
+
+            var property = serializedObject.FindProperty("m_CompressionFormat");
+            propertys.Add(new KeyValuePair<string, object>("格式", ((AudioCompressionFormat)property.intValue).ToString()));
+
+            serializedObject.Dispose();
             return propertys;
         }
 

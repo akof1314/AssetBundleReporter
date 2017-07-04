@@ -47,6 +47,7 @@ namespace WuHuan
                 FillAssetByType(info, AssetFileInfoType.animatorController, ws, ref startRow);
                 FillAssetByType(info, AssetFileInfoType.animatorOverrideController, ws, ref startRow);
                 FillAssetByType(info, AssetFileInfoType.animationClip, ws, ref startRow);
+                FillAssetByType(info, AssetFileInfoType.audioClip, ws, ref startRow);
                 FillAssetByType(info, AssetFileInfoType.monoScript, ws, ref startRow);
 
                 FillAssetDepends(info, ws, ref startRow);

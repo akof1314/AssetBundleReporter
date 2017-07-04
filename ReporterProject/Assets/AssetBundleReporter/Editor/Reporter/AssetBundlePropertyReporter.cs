@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 
@@ -6,12 +7,34 @@ namespace WuHuan
 {
     public static class AssetBundlePropertyReporter
     {
-        public static void CreateAndFillWorksheet(ExcelWorksheets wss, string typeName, string titleName, string[] columnNames)
+        public static void CreateAndFillWorksheet(ExcelWorksheets wss, string typeName)
         {
+            List<string> columnNames = new List<string>();
+            var dicts = AssetBundleFilesAnalyze.GetAllAssetFileInfo();
+            foreach (var info in dicts.Values)
+            {
+                if (info.type != typeName)
+                {
+                    continue;
+                }
+
+                foreach (var pair in info.propertys)
+                {
+                    columnNames.Add(pair.Key);
+                }
+                break;
+            }
+
+            if (columnNames.Count == 0)
+            {
+                return;
+            }
+
+            string titleName = typeName + " 列表";
             ExcelWorksheet ws = wss.Add(titleName);
 
-            int abCountCol = columnNames.Length + 2;
-            int abDetailCol = columnNames.Length + 3;
+            int abCountCol = columnNames.Count + 2;
+            int abDetailCol = columnNames.Count + 3;
 
             // 标签颜色
             ws.TabColor = ColorTranslator.FromHtml("#b490f5");
@@ -19,7 +42,7 @@ namespace WuHuan
 
             // 列头
             ws.Cells[2, 1].Value = "资源名称";
-            for (int i = 0; i < columnNames.Length; i++)
+            for (int i = 0; i < columnNames.Count; i++)
             {
                 ws.Cells[2, i + 2].Value = columnNames[i];
             }
@@ -41,7 +64,7 @@ namespace WuHuan
 
             // 列宽
             ws.Column(1).Width = 50;
-            for (int i = 0; i < columnNames.Length; i++)
+            for (int i = 0; i < columnNames.Count; i++)
             {
                 ws.Column(2 + i).Width = 15;
                 ws.Column(2 + i).Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
@@ -55,7 +78,6 @@ namespace WuHuan
             int startRow = 3;
             int maxCol = abDetailCol;
 
-            var dicts = AssetBundleFilesAnalyze.GetAllAssetFileInfo();
             foreach (var info in dicts.Values)
             {
                 if (info.type != typeName)
@@ -92,6 +114,20 @@ namespace WuHuan
             for (int i = abDetailCol; i <= maxCol; i++)
             {
                 ws.Column(i).Width = 100;
+            }
+
+            // 不同类型不同处理
+            switch (typeName)
+            {
+                case "Texture2D":
+                    ws.Column(7).Style.Numberformat.Format = "#,##0";
+                    break;
+                case "AnimationClip":
+                    ws.Column(7).Style.Numberformat.Format = "#,##0";
+                    break;
+                case "AudioClip":
+                    ws.Column(2).Width = 23;
+                    break;
             }
         }
     }
