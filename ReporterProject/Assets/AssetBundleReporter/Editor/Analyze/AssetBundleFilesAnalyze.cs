@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using UnityEditor;
-using UnityEditor.Animations;
 using UnityEngine;
 
 namespace WuHuan
@@ -240,10 +239,20 @@ namespace WuHuan
             {
                 AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(aoc.runtimeAnimatorController, info);
 
-                foreach (var clipPair in aoc.clips)
+                try
                 {
-                    AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(clipPair.originalClip, info);
-                    AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(clipPair.overrideClip, info);
+                    foreach (var clipPair in aoc.clips)
+                    {
+                        AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(clipPair.originalClip, info);
+                        AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(clipPair.overrideClip, info);
+                    }
+                }
+                catch (System.Exception)
+                {
+                    foreach (var clip in rac.animationClips)
+                    {
+                        AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(clip, info);
+                    }
                 }
             }
             else

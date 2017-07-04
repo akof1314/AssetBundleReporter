@@ -128,20 +128,30 @@ namespace WuHuan
         {
             var propertys = new List<KeyValuePair<string, object>>
             {
-                new KeyValuePair<string, object>("依赖Shader", mat.shader? mat.shader.name: System.String.Empty),
             };
 
             string texNames = System.String.Empty;
-            var pros = MaterialEditor.GetMaterialProperties(new Object[] { mat });
-            foreach (var pro in pros)
+            var serializedObject = new SerializedObject(mat);
+
+            var property = serializedObject.FindProperty("m_Shader");
+            propertys.Add(new KeyValuePair<string, object>("依赖Shader", property.objectReferenceValue ? property.objectReferenceValue.name : "Missing"));
+
+            property = serializedObject.FindProperty("m_SavedProperties");
+            var property2 = property.FindPropertyRelative("m_TexEnvs");
+            foreach (SerializedProperty property3 in property2)
             {
-                var tex = pro.textureValue;
-                if (tex)
+                SerializedProperty property4 = property3.FindPropertyRelative("second");
+                SerializedProperty property5 = property4.FindPropertyRelative("m_Texture");
+
+                if (property5.objectReferenceValue)
                 {
-                    texNames += tex.name;
+                    texNames += property5.objectReferenceValue.name;
                 }
             }
             propertys.Add(new KeyValuePair<string, object>("依赖纹理", texNames));
+
+            serializedObject.Dispose();
+
             return propertys;
         }
 
