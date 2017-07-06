@@ -37,6 +37,12 @@ namespace WuHuan
                 return;
             }
 
+            // 内建的资源排除掉
+            if (!string.IsNullOrEmpty(AssetDatabase.GetAssetPath(o)))
+            {
+                return;
+            }
+
             int guid = (name2 + type).GetHashCode();
             if (info.IsAssetContain(guid))
             {
