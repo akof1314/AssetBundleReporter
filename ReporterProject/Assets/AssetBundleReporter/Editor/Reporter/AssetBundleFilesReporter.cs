@@ -14,7 +14,7 @@ namespace WuHuan
 
             // 标签颜色
             ws.TabColor = ColorTranslator.FromHtml("#32b1fa");
-            AssetBundleReporter.CreateWorksheetBase(ws, "AssetBundle 文件列表", 8);
+            AssetBundleReporter.CreateWorksheetBase(ws, "AssetBundle 文件列表", 10);
 
             // 列头
             ws.Cells[2, 1].Value = "AssetBundle 名称";
@@ -25,8 +25,10 @@ namespace WuHuan
             ws.Cells[2, 6].Value = AssetFileInfoType.texture2D;
             ws.Cells[2, 7].Value = AssetFileInfoType.sprite;
             ws.Cells[2, 8].Value = AssetFileInfoType.shader;
+            ws.Cells[2, 9].Value = AssetFileInfoType.animationClip;
+            ws.Cells[2, 10].Value = AssetFileInfoType.audioClip;
 
-            using (var range = ws.Cells[2, 1, 2, 8])
+            using (var range = ws.Cells[2, 1, 2, 10])
             {
                 // 字体样式
                 range.Style.Font.Bold = true;
@@ -41,11 +43,12 @@ namespace WuHuan
 
             // 列宽
             ws.Column(1).Width = 100;
-            for (int i = 2; i <= 8; i++)
+            for (int i = 2; i <= 10; i++)
             {
                 ws.Column(i).Width = 15;
                 ws.Column(i).Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
             }
+            ws.Column(9).Width = 16;
 
             // 冻结前两行
             ws.View.FreezePanes(3, 1);
@@ -109,6 +112,18 @@ namespace WuHuan
                 if (count > 0)
                 {
                     ws.Cells[startRow, 8].Value = count;
+                }
+
+                count = info.GetAssetCount(AssetFileInfoType.animationClip);
+                if (count > 0)
+                {
+                    ws.Cells[startRow, 9].Value = count;
+                }
+
+                count = info.GetAssetCount(AssetFileInfoType.audioClip);
+                if (count > 0)
+                {
+                    ws.Cells[startRow, 10].Value = count;
                 }
 
                 startRow++;

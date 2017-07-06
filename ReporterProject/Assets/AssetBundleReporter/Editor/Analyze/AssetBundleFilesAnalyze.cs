@@ -65,9 +65,12 @@ namespace WuHuan
                 sAssetFileInfos.Clear();
                 sAssetFileInfos = null;
             }
+
+            EditorUtility.UnloadUnusedAssetsImmediate();
+            System.GC.Collect();
         }
 
-        public static bool Analyze(string directoryPath, string abExt = ".assetbundle")
+        public static bool Analyze(string directoryPath)
         {
             if (!Directory.Exists(directoryPath))
             {

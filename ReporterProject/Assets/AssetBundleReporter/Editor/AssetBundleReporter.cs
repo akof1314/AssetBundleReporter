@@ -23,7 +23,7 @@ namespace WuHuan
             }
 
             string bundlePath = path;
-            string outputPath = Path.Combine(path, DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".xlsx");
+            string outputPath = Path.Combine(path, "AssetBundle报告" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".xlsx");
             Print(bundlePath, outputPath);
         }
 
@@ -53,11 +53,11 @@ namespace WuHuan
                 AssetBundleDetailsReporter.FillWorksheet(package.Workbook.Worksheets[2]);
                 AssetBundleResReporter.FillWorksheet(package.Workbook.Worksheets[3]);
 
-                AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, "Texture2D");
-                AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, "Mesh");
-                AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, "Material");
-                AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, "AnimationClip");
-                AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, "AudioClip");
+                AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, AssetFileInfoType.mesh);
+                AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, AssetFileInfoType.texture2D);
+                AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, AssetFileInfoType.material);
+                AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, AssetFileInfoType.animationClip);
+                AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, AssetFileInfoType.audioClip);
 
                 package.Save();
             }

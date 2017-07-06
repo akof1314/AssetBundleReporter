@@ -143,7 +143,7 @@ namespace WuHuan
             var serializedObject = new SerializedObject(mat);
 
             var property = serializedObject.FindProperty("m_Shader");
-            propertys.Add(new KeyValuePair<string, object>("依赖Shader", property.objectReferenceValue ? property.objectReferenceValue.name : "Missing"));
+            propertys.Add(new KeyValuePair<string, object>("依赖Shader", property.objectReferenceValue ? property.objectReferenceValue.name : "[其他AB内]"));
 
             property = serializedObject.FindProperty("m_SavedProperties");
             var property2 = property.FindPropertyRelative("m_TexEnvs");
@@ -159,6 +159,14 @@ namespace WuHuan
                         texNames += ", ";
                     }
                     texNames += property5.objectReferenceValue.name;
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(texNames))
+                    {
+                        texNames += ", ";
+                    }
+                    texNames += "[其他AB内]";
                 }
             }
             propertys.Add(new KeyValuePair<string, object>("依赖纹理", texNames));
