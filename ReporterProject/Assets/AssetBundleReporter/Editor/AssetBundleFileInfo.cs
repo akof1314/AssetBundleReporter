@@ -18,6 +18,11 @@ namespace WuHuan
         public string path;
 
         /// <summary>
+        /// 根路径
+        /// </summary>
+        public string rootPath;
+
+        /// <summary>
         /// 直接依赖的AssetBundle列表
         /// </summary>
         public string[] directDepends;

@@ -57,17 +57,18 @@ namespace WuHuan
             {
                 // 初次创建对象时链接为空
                 info2.detailHyperLink = new OfficeOpenXml.ExcelHyperLink(System.String.Empty, info2.name);
-                info2.propertys = AnalyzeObject(o);
+                info2.propertys = AnalyzeObject(o, info.rootPath);
             }
 
             info.assets.Add(info2);
         }
 
-        private static List<KeyValuePair<string, object>> AnalyzeObject(Object o)
+        private static List<KeyValuePair<string, object>> AnalyzeObject(Object o, string path)
         {
             Texture2D tex = o as Texture2D;
             if (tex)
             {
+                SaveTexture2D(tex, path);
                 return AnalyzeTexture2D(tex);
             }
 
@@ -249,6 +250,28 @@ namespace WuHuan
                 };
                 return stats2;
             }
+        }
+
+        private static void SaveTexture2D(Texture2D tex, string path)
+        {
+            RenderTexture rt = RenderTexture.GetTemporary(tex.width, tex.height, 0);
+            Graphics.Blit(tex, rt);
+
+            RenderTexture active = RenderTexture.active;
+            RenderTexture.active = rt;
+            Texture2D cont = new Texture2D(tex.width, tex.height);
+            cont.hideFlags = HideFlags.HideAndDontSave;
+            cont.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
+            cont.Apply();
+            RenderTexture.active = active;
+            RenderTexture.ReleaseTemporary(rt);
+
+            System.IO.File.WriteAllBytes(System.IO.Path.Combine(path, tex.name + ".png"), cont.EncodeToPNG());
+        }
+
+        private static void SaveSprite(Sprite sprite, string path)
+        {
+            //sprite.
         }
     }
 }

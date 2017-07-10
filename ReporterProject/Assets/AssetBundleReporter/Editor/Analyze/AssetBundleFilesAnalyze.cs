@@ -103,6 +103,7 @@ namespace WuHuan
                 {
                     name = bundle,
                     path = Path.Combine(directoryPath, bundle),
+                    rootPath = directoryPath,
                     directDepends = assetBundleManifest.GetDirectDependencies(bundle),
                     allDepends = assetBundleManifest.GetAllDependencies(bundle)
                 };
