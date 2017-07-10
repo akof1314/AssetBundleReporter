@@ -254,6 +254,7 @@ namespace WuHuan
 
         private static void SaveTexture2D(Texture2D tex, string path)
         {
+            return;
             RenderTexture rt = RenderTexture.GetTemporary(tex.width, tex.height, 0);
             Graphics.Blit(tex, rt);
 

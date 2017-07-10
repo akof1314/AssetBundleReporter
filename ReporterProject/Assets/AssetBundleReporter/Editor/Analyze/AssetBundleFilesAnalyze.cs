@@ -2,7 +2,9 @@
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace WuHuan
 {
@@ -78,23 +80,54 @@ namespace WuHuan
                 return false;
             }
 
+            sAssetBundleFileInfos = AnalyzeCustomDepend(directoryPath);
+            if (sAssetBundleFileInfos == null)
+            {
+                sAssetBundleFileInfos = AnalyzeManifestDepend(directoryPath);
+            }
+            if (sAssetBundleFileInfos == null)
+            {
+                return false;
+            }
+
+            AnalyzeBundleFiles(sAssetBundleFileInfos);
+            return true;
+        }
+
+        /// <summary>
+        /// 自定义分析依赖构成
+        /// </summary>
+        /// <param name="directoryPath"></param>
+        /// <returns></returns>
+        private static List<AssetBundleFileInfo> AnalyzeCustomDepend(string directoryPath)
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// 分析Unity5方式的依赖构成
+        /// </summary>
+        /// <param name="directoryPath"></param>
+        /// <returns></returns>
+        private static List<AssetBundleFileInfo> AnalyzeManifestDepend(string directoryPath)
+        {
             string manifestName = Path.GetFileName(directoryPath);
             string manifestPath = Path.Combine(directoryPath, manifestName);
             if (!File.Exists(manifestPath))
             {
                 Debug.LogError(manifestPath + " is not exists!");
-                return false;
+                return null;
             }
 
             AssetBundle manifestAb = AssetBundle.LoadFromFile(manifestPath);
             if (!manifestAb)
             {
                 Debug.LogError(manifestPath + " ab load faild!");
-                return false;
+                return null;
             }
 
             Debug.Log("parse assetbundlemanifest");
-            sAssetBundleFileInfos = new List<AssetBundleFileInfo>();
+            List<AssetBundleFileInfo> infos = new List<AssetBundleFileInfo>();
             AssetBundleManifest assetBundleManifest = manifestAb.LoadAsset<AssetBundleManifest>("assetbundlemanifest");
             var bundles = assetBundleManifest.GetAllAssetBundles();
             foreach (var bundle in bundles)
@@ -107,15 +140,19 @@ namespace WuHuan
                     directDepends = assetBundleManifest.GetDirectDependencies(bundle),
                     allDepends = assetBundleManifest.GetAllDependencies(bundle)
                 };
-                sAssetBundleFileInfos.Add(info);
+                infos.Add(info);
             }
             manifestAb.Unload(true);
+            return infos;
+        }
 
+        private static void AnalyzeBundleFiles(List<AssetBundleFileInfo> infos)
+        {
             // 分析被依赖的关系
-            foreach (var info in sAssetBundleFileInfos)
+            foreach (var info in infos)
             {
                 List<string> beDepends = new List<string>();
-                foreach (var info2 in sAssetBundleFileInfos)
+                foreach (var info2 in infos)
                 {
                     if (info2.name == info.name)
                     {
@@ -132,7 +169,7 @@ namespace WuHuan
 
             // 以下不能保证百分百找到所有的资源，最准确的方式是解密AssetBundle格式
             Debug.Log("parse all assetbundle");
-            foreach (var info in sAssetBundleFileInfos)
+            foreach (var info in infos)
             {
                 AssetBundle ab = AssetBundle.LoadFromFile(info.path);
                 if (ab)
@@ -154,6 +191,20 @@ namespace WuHuan
                                 AnalyzeComponent(info, o);
                             }
                         }
+                        else
+                        {
+                            List<GameObject> gos = new List<GameObject>();
+                            foreach (var scenePath in ab.GetAllScenePaths())
+                            {
+                                Scene scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+                                scene.GetRootGameObjects(gos);
+                                foreach (var go in gos)
+                                {
+                                    Debug.Log(go.name);
+                                }
+                                EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+                            }
+                        }
                     }
                     finally
                     {
@@ -163,7 +214,6 @@ namespace WuHuan
             }
 
             Debug.Log("parse all assetbundle succeed");
-            return true;
         }
 
         /// <summary>
