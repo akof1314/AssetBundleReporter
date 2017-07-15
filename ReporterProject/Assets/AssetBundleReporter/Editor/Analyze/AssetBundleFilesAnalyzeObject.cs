@@ -38,7 +38,9 @@ namespace WuHuan
             }
 
             // 内建的资源排除掉
-            if (!string.IsNullOrEmpty(AssetDatabase.GetAssetPath(o)))
+            string assetPath = AssetDatabase.GetAssetPath(o);
+            Debug.Log(assetPath);
+            if (!string.IsNullOrEmpty(assetPath))
             {
                 return;
             }

@@ -4,6 +4,7 @@ using System.Drawing;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using UnityEditor;
+using UnityEngine.Events;
 
 namespace WuHuan
 {
@@ -24,18 +25,29 @@ namespace WuHuan
 
             string bundlePath = path;
             string outputPath = Path.Combine(path, "AssetBundle报告" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".xlsx");
-            Print(bundlePath, outputPath);
+            AnalyzePrint(bundlePath, outputPath);
         }
 
-        public static void Print(string bundlePath, string outputPath)
+        public static void AnalyzePrint(string bundlePath, string outputPath, UnityAction completed = null)
         {
+            AssetBundleFilesAnalyze.analyzeCompleted = () =>
+            {
+                PrintToExcel(outputPath);
+                if (completed != null)
+                {
+                    completed();
+                }
+            };
+
             EditorUtility.DisplayProgressBar("AssetBundle报告", "正在分析 AssetBundle 文件...", 0.35f);
             if (!AssetBundleFilesAnalyze.Analyze(bundlePath))
             {
                 EditorUtility.ClearProgressBar();
-                return;
             }
+        }
 
+        public static void PrintToExcel(string outputPath)
+        {
             EditorUtility.DisplayProgressBar("AssetBundle报告", "正在写入 Excel 文件...", 0.85f);
             var newFile = new FileInfo(outputPath);
             if (newFile.Exists)

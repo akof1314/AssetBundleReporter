@@ -49,25 +49,32 @@ namespace WuHuan
             int maxCol = 4;
 
             var dicts = AssetBundleFilesAnalyze.GetAllAssetFileInfo();
-            foreach (var info in dicts.Values)
+            if (dicts == null)
             {
-                ws.Cells[startRow, 1].Value = info.name;
-                ws.Cells[startRow, 2].Value = info.type;
-                ws.Cells[startRow, 3].Value = info.includedBundles.Count;
-
-                info.detailHyperLink.ReferenceAddress = ws.Cells[startRow, 1].FullAddress;
-
-                int startCol = 4;
-                foreach (var bundleFileInfo in info.includedBundles)
-                {
-                    ws.Cells[startRow, startCol].Value = bundleFileInfo.name;
-                    ws.Cells[startRow, startCol++].Hyperlink = bundleFileInfo.detailHyperLink;
-                }
-                maxCol = System.Math.Max(--startCol, maxCol);
-                startRow++;
+                ws.Cells[1, 1].Value = ws.Cells[1, 1].Value + " (0)";
             }
+            else
+            {
+                foreach (var info in dicts.Values)
+                {
+                    ws.Cells[startRow, 1].Value = info.name;
+                    ws.Cells[startRow, 2].Value = info.type;
+                    ws.Cells[startRow, 3].Value = info.includedBundles.Count;
 
-            ws.Cells[1, 1].Value = ws.Cells[1, 1].Value + " (" + dicts.Values.Count + ")";
+                    info.detailHyperLink.ReferenceAddress = ws.Cells[startRow, 1].FullAddress;
+
+                    int startCol = 4;
+                    foreach (var bundleFileInfo in info.includedBundles)
+                    {
+                        ws.Cells[startRow, startCol].Value = bundleFileInfo.name;
+                        ws.Cells[startRow, startCol++].Hyperlink = bundleFileInfo.detailHyperLink;
+                    }
+                    maxCol = System.Math.Max(--startCol, maxCol);
+                    startRow++;
+                }
+
+                ws.Cells[1, 1].Value = ws.Cells[1, 1].Value + " (" + dicts.Values.Count + ")";
+            }
 
             // 具体所需要的列
             using (var range = ws.Cells[2, 4, 2, maxCol])

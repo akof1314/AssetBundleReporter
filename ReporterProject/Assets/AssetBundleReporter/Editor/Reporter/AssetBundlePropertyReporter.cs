@@ -9,8 +9,12 @@ namespace WuHuan
     {
         public static void CreateAndFillWorksheet(ExcelWorksheets wss, string typeName)
         {
-            List<string> columnNames = new List<string>();
             var dicts = AssetBundleFilesAnalyze.GetAllAssetFileInfo();
+            if (dicts == null)
+            {
+                return;
+            }
+            List<string> columnNames = new List<string>();
             foreach (var info in dicts.Values)
             {
                 if (info.type != typeName)

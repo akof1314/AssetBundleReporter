@@ -2,9 +2,8 @@
 using System.IO;
 using System.Linq;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.Events;
 
 namespace WuHuan
 {
@@ -15,6 +14,9 @@ namespace WuHuan
     {
         private static List<AssetBundleFileInfo> sAssetBundleFileInfos;
         private static Dictionary<int, AssetFileInfo> sAssetFileInfos;
+        private static AssetBundleFilesAnalyzeScene sAnalyzeScene;
+
+        public static UnityAction analyzeCompleted;
 
         /// <summary>
         /// 获取所有的AB文件信息
@@ -67,6 +69,7 @@ namespace WuHuan
                 sAssetFileInfos.Clear();
                 sAssetFileInfos = null;
             }
+            sAnalyzeScene = null;
 
             EditorUtility.UnloadUnusedAssetsImmediate();
             System.GC.Collect();
@@ -90,7 +93,17 @@ namespace WuHuan
                 return false;
             }
 
+            sAnalyzeScene = new AssetBundleFilesAnalyzeScene();
             AnalyzeBundleFiles(sAssetBundleFileInfos);
+            sAnalyzeScene.Analyze();
+
+            if (!sAnalyzeScene.IsAnalyzing())
+            {
+                if (analyzeCompleted != null)
+                {
+                    analyzeCompleted();
+                }
+            }
             return true;
         }
 
@@ -193,17 +206,7 @@ namespace WuHuan
                         }
                         else
                         {
-                            List<GameObject> gos = new List<GameObject>();
-                            foreach (var scenePath in ab.GetAllScenePaths())
-                            {
-                                Scene scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
-                                scene.GetRootGameObjects(gos);
-                                foreach (var go in gos)
-                                {
-                                    Debug.Log(go.name);
-                                }
-                                EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-                            }
+                            sAnalyzeScene.AddBundleSceneInfo(info, ab.GetAllScenePaths());
                         }
                     }
                     finally
@@ -215,7 +218,7 @@ namespace WuHuan
 
             Debug.Log("parse all assetbundle succeed");
         }
-
+       
         /// <summary>
         /// 分析对象的引用
         /// </summary>
@@ -242,7 +245,7 @@ namespace WuHuan
         /// </summary>
         /// <param name="info"></param>
         /// <param name="o"></param>
-        private static void AnalyzeComponent(AssetBundleFileInfo info, Object o)
+        public static void AnalyzeComponent(AssetBundleFileInfo info, Object o)
         {
             var go = o as GameObject;
             if (!go)
