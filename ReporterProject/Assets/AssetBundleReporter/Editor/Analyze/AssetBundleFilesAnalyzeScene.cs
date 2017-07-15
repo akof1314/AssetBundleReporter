@@ -135,7 +135,6 @@ namespace WuHuan
             GameObject[] gos = scene.GetRootGameObjects();
             foreach (var go in gos)
             {
-                Debug.Log(go.name);
                 AssetBundleFilesAnalyze.AnalyzeComponent(info.fileInfo, go);
             }
 

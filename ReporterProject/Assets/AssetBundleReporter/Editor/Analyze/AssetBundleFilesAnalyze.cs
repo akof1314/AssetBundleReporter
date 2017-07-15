@@ -16,6 +16,7 @@ namespace WuHuan
         private static Dictionary<int, AssetFileInfo> sAssetFileInfos;
         private static AssetBundleFilesAnalyzeScene sAnalyzeScene;
 
+        public static System.Func<string, List<AssetBundleFileInfo>> analyzeCustomDepend;
         public static UnityAction analyzeCompleted;
 
         /// <summary>
@@ -83,10 +84,17 @@ namespace WuHuan
                 return false;
             }
 
-            sAssetBundleFileInfos = AnalyzeCustomDepend(directoryPath);
+            if (analyzeCustomDepend != null)
+            {
+                sAssetBundleFileInfos = analyzeCustomDepend(directoryPath);
+            }
             if (sAssetBundleFileInfos == null)
             {
                 sAssetBundleFileInfos = AnalyzeManifestDepend(directoryPath);
+            }
+            if (sAssetBundleFileInfos == null)
+            {
+                sAssetBundleFileInfos = AnalyzAllFiles(directoryPath);
             }
             if (sAssetBundleFileInfos == null)
             {
@@ -105,16 +113,6 @@ namespace WuHuan
                 }
             }
             return true;
-        }
-
-        /// <summary>
-        /// 自定义分析依赖构成
-        /// </summary>
-        /// <param name="directoryPath"></param>
-        /// <returns></returns>
-        private static List<AssetBundleFileInfo> AnalyzeCustomDepend(string directoryPath)
-        {
-            return null;
         }
 
         /// <summary>
@@ -139,7 +137,6 @@ namespace WuHuan
                 return null;
             }
 
-            Debug.Log("parse assetbundlemanifest");
             List<AssetBundleFileInfo> infos = new List<AssetBundleFileInfo>();
             AssetBundleManifest assetBundleManifest = manifestAb.LoadAsset<AssetBundleManifest>("assetbundlemanifest");
             var bundles = assetBundleManifest.GetAllAssetBundles();
@@ -156,6 +153,39 @@ namespace WuHuan
                 infos.Add(info);
             }
             manifestAb.Unload(true);
+            return infos;
+        }
+
+        /// <summary>
+        /// 直接递归所有文件
+        /// </summary>
+        /// <param name="directoryPath"></param>
+        /// <returns></returns>
+        private static List<AssetBundleFileInfo> AnalyzAllFiles(string directoryPath)
+        {
+            List<AssetBundleFileInfo> infos = new List<AssetBundleFileInfo>();
+            string bom = "Unity";
+            char[] flag = new char[5];
+            string[] files = Directory.GetFiles(directoryPath, "*", SearchOption.AllDirectories);
+            foreach (var file in files)
+            {
+                using (StreamReader streamReader = new StreamReader(file))
+                {
+                    if (streamReader.Read(flag, 0, flag.Length) == flag.Length && new string(flag) == bom)
+                    {
+                        AssetBundleFileInfo info = new AssetBundleFileInfo
+                        {
+                            name = file.Substring(directoryPath.Length + 1),
+                            path = file,
+                            rootPath = directoryPath,
+                            directDepends = new string[] { },
+                            allDepends = new string[] {}
+                        };
+                        infos.Add(info);
+                    }
+                }
+            }
+            
             return infos;
         }
 
@@ -181,7 +211,6 @@ namespace WuHuan
             }
 
             // 以下不能保证百分百找到所有的资源，最准确的方式是解密AssetBundle格式
-            Debug.Log("parse all assetbundle");
             foreach (var info in infos)
             {
                 AssetBundle ab = AssetBundle.LoadFromFile(info.path);
@@ -215,8 +244,6 @@ namespace WuHuan
                     }
                 }
             }
-
-            Debug.Log("parse all assetbundle succeed");
         }
        
         /// <summary>

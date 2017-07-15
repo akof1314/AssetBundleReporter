@@ -14,8 +14,8 @@ namespace WuHuan
     /// </summary>
     public class AssetBundleReporter
     {
-        [MenuItem("AssetBundleReporter/Print")]
-        public static void AnalyzePrint()
+        [MenuItem("Window/AssetBundleReporter")]
+        public static void AnalyzePrintCmd()
         {
             string path = EditorUtility.OpenFolderPanel("AssetBundle 保存目录", "", "");
             if (string.IsNullOrEmpty(path))
