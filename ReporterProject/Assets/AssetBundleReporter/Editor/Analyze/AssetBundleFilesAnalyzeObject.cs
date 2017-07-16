@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -67,18 +68,18 @@ namespace WuHuan
             {
                 // 初次创建对象时链接为空
                 info2.detailHyperLink = new OfficeOpenXml.ExcelHyperLink(System.String.Empty, info2.name);
-                info2.propertys = AnalyzeObject(o, serializedObject, info.rootPath);
+                info2.propertys = AnalyzeObject(o, serializedObject, info.rootPath, info.name);
             }
 
             info.assets.Add(info2);
         }
 
-        private static List<KeyValuePair<string, object>> AnalyzeObject(Object o, SerializedObject serializedObject, string path)
+        private static List<KeyValuePair<string, object>> AnalyzeObject(Object o, SerializedObject serializedObject, string rootPath, string name)
         {
             Texture2D tex = o as Texture2D;
             if (tex)
             {
-                SaveTexture2D(tex, path);
+                ExportTexture2D(tex, rootPath, name);
                 return AnalyzeTexture2D(tex, serializedObject);
             }
 
@@ -253,9 +254,21 @@ namespace WuHuan
             }
         }
 
-        private static void SaveTexture2D(Texture2D tex, string path)
+        private static void ExportTexture2D(Texture2D tex, string rootPath, string name)
         {
-            return;
+            if (!AssetBundleFilesAnalyze.analyzeExport)
+            {
+                return;
+            }
+
+            string dirPath = Path.Combine(Path.GetDirectoryName(rootPath), Path.GetFileNameWithoutExtension(rootPath) + "Export");
+            dirPath = Path.Combine(dirPath, name);
+            dirPath = Path.Combine(dirPath, AssetFileInfoType.texture2D);
+            if (!Directory.Exists(dirPath))
+            {
+                Directory.CreateDirectory(dirPath);
+            }
+
             RenderTexture rt = RenderTexture.GetTemporary(tex.width, tex.height, 0);
             Graphics.Blit(tex, rt);
 
@@ -268,12 +281,7 @@ namespace WuHuan
             RenderTexture.active = active;
             RenderTexture.ReleaseTemporary(rt);
 
-            System.IO.File.WriteAllBytes(System.IO.Path.Combine(path, tex.name + ".png"), cont.EncodeToPNG());
-        }
-
-        private static void SaveSprite(Sprite sprite, string path)
-        {
-            //sprite.
+            File.WriteAllBytes(Path.Combine(dirPath, tex.name + ".png"), cont.EncodeToPNG());
         }
     }
 }

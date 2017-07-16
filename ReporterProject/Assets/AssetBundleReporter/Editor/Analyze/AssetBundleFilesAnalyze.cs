@@ -13,11 +13,26 @@ namespace WuHuan
     /// </summary>
     public static class AssetBundleFilesAnalyze
     {
+        #region 对外接口
+
+        /// <summary>
+        /// 自定义分析依赖
+        /// </summary>
+        public static System.Func<string, List<AssetBundleFileInfo>> analyzeCustomDepend;
+
+        /// <summary>
+        /// 分析的时候，也导出资源
+        /// </summary>
+        public static bool analyzeExport { get; set; }
+
+        #endregion
+
+        #region 内部实现
+
         private static List<AssetBundleFileInfo> sAssetBundleFileInfos;
         private static Dictionary<long, AssetFileInfo> sAssetFileInfos;
         private static AssetBundleFilesAnalyzeScene sAnalyzeScene;
 
-        public static System.Func<string, List<AssetBundleFileInfo>> analyzeCustomDepend;
         public static UnityAction analyzeCompleted;
 
         /// <summary>
@@ -180,13 +195,13 @@ namespace WuHuan
                             path = file,
                             rootPath = directoryPath,
                             directDepends = new string[] { },
-                            allDepends = new string[] {}
+                            allDepends = new string[] { }
                         };
                         infos.Add(info);
                     }
                 }
             }
-            
+
             return infos;
         }
 
@@ -243,7 +258,7 @@ namespace WuHuan
         }
 
         private static PropertyInfo inspectorMode;
-       
+
         /// <summary>
         /// 分析对象的引用
         /// </summary>
@@ -348,5 +363,7 @@ namespace WuHuan
                 }
             }
         }
+
+        #endregion
     }
 }
