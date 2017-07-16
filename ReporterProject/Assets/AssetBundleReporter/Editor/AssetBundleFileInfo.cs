@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
 
 namespace WuHuan
 {
@@ -47,6 +49,11 @@ namespace WuHuan
         /// </summary>
         public OfficeOpenXml.ExcelHyperLink detailHyperLink;
 
+        /// <summary>
+        /// 包含的全部对象字典（方便不会重复添加）
+        /// </summary>
+        public Dictionary<Object, SerializedObject> objDict = new Dictionary<Object, SerializedObject>(); 
+
         public override string ToString()
         {
             return name;
@@ -70,7 +77,7 @@ namespace WuHuan
             return count;
         }
 
-        public bool IsAssetContain(int guid)
+        public bool IsAssetContain(long guid)
         {
             foreach (var asset in assets)
             {

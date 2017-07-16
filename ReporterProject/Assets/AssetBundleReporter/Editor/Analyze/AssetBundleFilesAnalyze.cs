@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
@@ -13,7 +14,7 @@ namespace WuHuan
     public static class AssetBundleFilesAnalyze
     {
         private static List<AssetBundleFileInfo> sAssetBundleFileInfos;
-        private static Dictionary<int, AssetFileInfo> sAssetFileInfos;
+        private static Dictionary<long, AssetFileInfo> sAssetFileInfos;
         private static AssetBundleFilesAnalyzeScene sAnalyzeScene;
 
         public static System.Func<string, List<AssetBundleFileInfo>> analyzeCustomDepend;
@@ -37,16 +38,16 @@ namespace WuHuan
         /// 获取所有的资产文件信息
         /// </summary>
         /// <returns></returns>
-        public static Dictionary<int, AssetFileInfo> GetAllAssetFileInfo()
+        public static Dictionary<long, AssetFileInfo> GetAllAssetFileInfo()
         {
             return sAssetFileInfos;
         }
 
-        public static AssetFileInfo GetAssetFileInfo(int guid)
+        public static AssetFileInfo GetAssetFileInfo(long guid)
         {
             if (sAssetFileInfos == null)
             {
-                sAssetFileInfos = new Dictionary<int, AssetFileInfo>();
+                sAssetFileInfos = new Dictionary<long, AssetFileInfo>();
             }
 
             AssetFileInfo info;
@@ -223,15 +224,10 @@ namespace WuHuan
                             Object[] objs = ab.LoadAllAssets<Object>();
                             foreach (var o in objs)
                             {
-                                AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(o, info);
-                            }
-
-                            // 处理被依赖打包进的资源
-                            foreach (var o in objs)
-                            {
                                 AnalyzeObjectReference(info, o);
-                                AnalyzeComponent(info, o);
+                                AnalyzeObjectComponent(info, o);
                             }
+                            AnalyzeObjectsCompleted(info);
                         }
                         else
                         {
@@ -245,6 +241,8 @@ namespace WuHuan
                 }
             }
         }
+
+        private static PropertyInfo inspectorMode;
        
         /// <summary>
         /// 分析对象的引用
@@ -253,18 +251,28 @@ namespace WuHuan
         /// <param name="o"></param>
         private static void AnalyzeObjectReference(AssetBundleFileInfo info, Object o)
         {
+            if (info.objDict.ContainsKey(o))
+            {
+                return;
+            }
+
             var serializedObject = new SerializedObject(o);
+            info.objDict.Add(o, serializedObject);
+
+            if (inspectorMode == null)
+            {
+                inspectorMode = typeof(SerializedObject).GetProperty("inspectorMode", BindingFlags.NonPublic | BindingFlags.Instance);
+            }
+            inspectorMode.SetValue(serializedObject, InspectorMode.Debug, null);
+
             var it = serializedObject.GetIterator();
             while (it.NextVisible(true))
             {
                 if (it.propertyType == SerializedPropertyType.ObjectReference && it.objectReferenceValue != null)
                 {
-                    AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(it.objectReferenceValue, info);
-
                     AnalyzeObjectReference(info, it.objectReferenceValue);
                 }
             }
-            serializedObject.Dispose();
         }
 
         /// <summary>
@@ -272,7 +280,7 @@ namespace WuHuan
         /// </summary>
         /// <param name="info"></param>
         /// <param name="o"></param>
-        public static void AnalyzeComponent(AssetBundleFileInfo info, Object o)
+        public static void AnalyzeObjectComponent(AssetBundleFileInfo info, Object o)
         {
             var go = o as GameObject;
             if (!go)
@@ -288,22 +296,32 @@ namespace WuHuan
                     continue;
                 }
 
+                AnalyzeObjectReference(info, component);
                 if (component as MonoBehaviour)
                 {
-                    string type = component.GetType().ToString();
-                    if (!type.StartsWith("UnityEngine."))
-                    {
-                        AnalyzeObjectReference(info, component);
-                    }
                 }
                 else
                 {
-                    AnalyzeObjectReference(info, component);
                     AnalyzeAnimator(info, component);
                 }
             }
         }
 
+        public static void AnalyzeObjectsCompleted(AssetBundleFileInfo info)
+        {
+            foreach (var kv in info.objDict)
+            {
+                AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(kv.Key, kv.Value, info);
+                kv.Value.Dispose();
+            }
+            info.objDict.Clear();
+        }
+
+        /// <summary>
+        /// 动画控制器比较特殊，不能通过序列化得到
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="o"></param>
         private static void AnalyzeAnimator(AssetBundleFileInfo info, Object o)
         {
             var animator = o as Animator;
@@ -321,29 +339,12 @@ namespace WuHuan
             AnimatorOverrideController aoc = rac as AnimatorOverrideController;
             if (aoc)
             {
-                AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(aoc.runtimeAnimatorController, info);
-
-                try
-                {
-                    foreach (var clipPair in aoc.clips)
-                    {
-                        AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(clipPair.originalClip, info);
-                        AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(clipPair.overrideClip, info);
-                    }
-                }
-                catch (System.Exception)
-                {
-                    foreach (var clip in rac.animationClips)
-                    {
-                        AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(clip, info);
-                    }
-                }
             }
             else
             {
                 foreach (var clip in rac.animationClips)
                 {
-                    AssetBundleFilesAnalyzeObject.ObjectAddToFileInfo(clip, info);
+                    AnalyzeObjectReference(info, clip);
                 }
             }
         }

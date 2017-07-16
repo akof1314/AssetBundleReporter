@@ -15,5 +15,6 @@ namespace WuHuan
         public static readonly string animatorOverrideController = "AnimatorOverrideController";
         public static readonly string animationClip = "AnimationClip";
         public static readonly string audioClip = "AudioClip";
+        public static readonly string font = "Font";
     }
 }

@@ -17,7 +17,7 @@ namespace WuHuan
         /// 需要取得 PathID 才能确保唯一性
         /// 这里只能用名称和类型代替
         /// </summary>
-        public int guid;
+        public long guid;
 
         /// <summary>
         /// 类型

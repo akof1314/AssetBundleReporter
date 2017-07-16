@@ -10,7 +10,7 @@ namespace WuHuan
     /// </summary>
     public class AssetBundleFilesAnalyzeObject
     {
-        public static void ObjectAddToFileInfo(Object o, AssetBundleFileInfo info)
+        public static void ObjectAddToFileInfo(Object o, SerializedObject serializedObject, AssetBundleFileInfo info)
         {
             if (!o)
             {
@@ -22,6 +22,12 @@ namespace WuHuan
             if (type.StartsWith("UnityEngine."))
             {
                 type = type.Substring(12);
+                
+                // 如果是内置的组件，就不当作是资源
+                if (o as Component)
+                {
+                    return;
+                }
             }
             else if (type == "UnityEditor.Animations.AnimatorController")
             {
@@ -29,6 +35,7 @@ namespace WuHuan
             }
             else if (type == "UnityEditor.MonoScript")
             {
+                // 外部的组件脚本，保留下来
                 type = "MonoScript";
             }
             else
@@ -44,7 +51,9 @@ namespace WuHuan
                 return;
             }
 
-            int guid = (name2 + type).GetHashCode();
+            SerializedProperty pathIdProp = serializedObject.FindProperty("m_LocalIdentfierInFile");
+            long guid = pathIdProp.longValue;
+
             if (info.IsAssetContain(guid))
             {
                 return;
@@ -58,49 +67,49 @@ namespace WuHuan
             {
                 // 初次创建对象时链接为空
                 info2.detailHyperLink = new OfficeOpenXml.ExcelHyperLink(System.String.Empty, info2.name);
-                info2.propertys = AnalyzeObject(o, info.rootPath);
+                info2.propertys = AnalyzeObject(o, serializedObject, info.rootPath);
             }
 
             info.assets.Add(info2);
         }
 
-        private static List<KeyValuePair<string, object>> AnalyzeObject(Object o, string path)
+        private static List<KeyValuePair<string, object>> AnalyzeObject(Object o, SerializedObject serializedObject, string path)
         {
             Texture2D tex = o as Texture2D;
             if (tex)
             {
                 SaveTexture2D(tex, path);
-                return AnalyzeTexture2D(tex);
+                return AnalyzeTexture2D(tex, serializedObject);
             }
 
             Mesh mesh = o as Mesh;
             if (mesh)
             {
-                return AnalyzeMesh(mesh);
+                return AnalyzeMesh(mesh, serializedObject);
             }
 
             Material mat = o as Material;
             if (mat)
             {
-                return AnalyzeMaterial(mat);
+                return AnalyzeMaterial(mat, serializedObject);
             }
 
             AudioClip audioClip = o as AudioClip;
             if (audioClip)
             {
-                return AnalyzeAudioClip(audioClip);
+                return AnalyzeAudioClip(audioClip, serializedObject);
             }
 
             AnimationClip clip = o as AnimationClip;
             if (clip)
             {
-                return AnalyzeAnimationClip(clip);
+                return AnalyzeAnimationClip(clip, serializedObject);
             }
 
             return null;
         }
 
-        private static List<KeyValuePair<string, object>> AnalyzeTexture2D(Texture2D tex)
+        private static List<KeyValuePair<string, object>> AnalyzeTexture2D(Texture2D tex, SerializedObject serializedObject)
         {
             var propertys = new List<KeyValuePair<string, object>>
             {
@@ -110,19 +119,16 @@ namespace WuHuan
                 new KeyValuePair<string, object>("MipMap功能", tex.mipmapCount > 1 ? "True" : "False")
             };
 
-            var serializedObject = new SerializedObject(tex);
-
             var property = serializedObject.FindProperty("m_IsReadable");
             propertys.Add(new KeyValuePair<string, object>("Read/Write", property.boolValue.ToString()));
 
             property = serializedObject.FindProperty("m_CompleteImageSize");
             propertys.Add(new KeyValuePair<string, object>("内存占用", property.intValue));
 
-            serializedObject.Dispose();
             return propertys;
         }
 
-        private static List<KeyValuePair<string, object>> AnalyzeMesh(Mesh mesh)
+        private static List<KeyValuePair<string, object>> AnalyzeMesh(Mesh mesh, SerializedObject serializedObject)
         {
             var propertys = new List<KeyValuePair<string, object>>
             {
@@ -135,14 +141,13 @@ namespace WuHuan
             return propertys;
         }
 
-        private static List<KeyValuePair<string, object>> AnalyzeMaterial(Material mat)
+        private static List<KeyValuePair<string, object>> AnalyzeMaterial(Material mat, SerializedObject serializedObject)
         {
             var propertys = new List<KeyValuePair<string, object>>
             {
             };
 
             string texNames = System.String.Empty;
-            var serializedObject = new SerializedObject(mat);
 
             var property = serializedObject.FindProperty("m_Shader");
             propertys.Add(new KeyValuePair<string, object>("依赖Shader", property.objectReferenceValue ? property.objectReferenceValue.name : "[其他AB内]"));
@@ -173,12 +178,10 @@ namespace WuHuan
             }
             propertys.Add(new KeyValuePair<string, object>("依赖纹理", texNames));
 
-            serializedObject.Dispose();
-
             return propertys;
         }
 
-        private static List<KeyValuePair<string, object>> AnalyzeAudioClip(AudioClip audioClip)
+        private static List<KeyValuePair<string, object>> AnalyzeAudioClip(AudioClip audioClip, SerializedObject serializedObject)
         {
             var propertys = new List<KeyValuePair<string, object>>
             {
@@ -188,16 +191,13 @@ namespace WuHuan
                 new KeyValuePair<string, object>("长度", audioClip.length)
             };
 
-            var serializedObject = new SerializedObject(audioClip);
-
             var property = serializedObject.FindProperty("m_CompressionFormat");
             propertys.Add(new KeyValuePair<string, object>("格式", ((AudioCompressionFormat)property.intValue).ToString()));
 
-            serializedObject.Dispose();
             return propertys;
         }
 
-        private static List<KeyValuePair<string, object>> AnalyzeAnimationClip(AnimationClip clip)
+        private static List<KeyValuePair<string, object>> AnalyzeAnimationClip(AnimationClip clip, SerializedObject serializedObject)
         {
             var stats = AnimationClipStatsInfo.GetAnimationClipStats(clip);
             var propertys = new List<KeyValuePair<string, object>>
