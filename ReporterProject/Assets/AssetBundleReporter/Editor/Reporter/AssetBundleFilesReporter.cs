@@ -14,21 +14,23 @@ namespace WuHuan
 
             // 标签颜色
             ws.TabColor = ColorTranslator.FromHtml("#32b1fa");
-            AssetBundleReporter.CreateWorksheetBase(ws, "AssetBundle 文件列表", 10);
+            AssetBundleReporter.CreateWorksheetBase(ws, "AssetBundle 文件列表", 11);
 
             // 列头
-            ws.Cells[2, 1].Value = "AssetBundle 名称";
-            ws.Cells[2, 2].Value = "依赖AB数";
-            ws.Cells[2, 3].Value = "冗余资源数";
-            ws.Cells[2, 4].Value = AssetFileInfoType.mesh;
-            ws.Cells[2, 5].Value = AssetFileInfoType.material;
-            ws.Cells[2, 6].Value = AssetFileInfoType.texture2D;
-            ws.Cells[2, 7].Value = AssetFileInfoType.sprite;
-            ws.Cells[2, 8].Value = AssetFileInfoType.shader;
-            ws.Cells[2, 9].Value = AssetFileInfoType.animationClip;
-            ws.Cells[2, 10].Value = AssetFileInfoType.audioClip;
+            int colIndex = 1;
+            ws.Cells[2, colIndex++].Value = "AssetBundle 名称";
+            ws.Cells[2, colIndex++].Value = "文件大小";
+            ws.Cells[2, colIndex++].Value = "依赖AB数";
+            ws.Cells[2, colIndex++].Value = "冗余资源数";
+            ws.Cells[2, colIndex++].Value = AssetFileInfoType.mesh;
+            ws.Cells[2, colIndex++].Value = AssetFileInfoType.material;
+            ws.Cells[2, colIndex++].Value = AssetFileInfoType.texture2D;
+            ws.Cells[2, colIndex++].Value = AssetFileInfoType.sprite;
+            ws.Cells[2, colIndex++].Value = AssetFileInfoType.shader;
+            ws.Cells[2, colIndex++].Value = AssetFileInfoType.animationClip;
+            ws.Cells[2, colIndex].Value = AssetFileInfoType.audioClip;
 
-            using (var range = ws.Cells[2, 1, 2, 10])
+            using (var range = ws.Cells[2, 1, 2, colIndex])
             {
                 // 字体样式
                 range.Style.Font.Bold = true;
@@ -43,12 +45,13 @@ namespace WuHuan
 
             // 列宽
             ws.Column(1).Width = 100;
-            for (int i = 2; i <= 10; i++)
+            for (int i = 2; i <= colIndex; i++)
             {
                 ws.Column(i).Width = 15;
                 ws.Column(i).Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
             }
-            ws.Column(9).Width = 16;
+            ws.Column(10).Width = 16;
+            ws.Column(2).Style.Numberformat.Format = "#,##0";
 
             // 冻结前两行
             ws.View.FreezePanes(3, 1);
@@ -61,16 +64,19 @@ namespace WuHuan
             List<AssetBundleFileInfo> infos = AssetBundleFilesAnalyze.GetAllAssetBundleFileInfos();
             foreach (var info in infos)
             {
-                ws.Cells[startRow, 1].Value = info.name;
+                int colIndex = 1;
+                ws.Cells[startRow, colIndex].Value = info.name;
                 info.detailHyperLink = new ExcelHyperLink(String.Empty, info.name);
-                ws.Cells[startRow, 1].Hyperlink = info.detailHyperLink;
+                ws.Cells[startRow, colIndex++].Hyperlink = info.detailHyperLink;
+                ws.Cells[startRow, colIndex++].Value = info.size;
 
                 int count = info.allDepends.Length;
                 if (count > 0)
                 {
-                    ws.Cells[startRow, 2].Value = count;
+                    ws.Cells[startRow, colIndex].Value = count;
                 }
 
+                colIndex++;
                 count = 0;
                 foreach (var asset in info.assets)
                 {
@@ -81,49 +87,56 @@ namespace WuHuan
                 }
                 if (count > 0)
                 {
-                    ws.Cells[startRow, 3].Value = count;
+                    ws.Cells[startRow, colIndex].Value = count;
                 }
 
+                colIndex++;
                 count = info.GetAssetCount(AssetFileInfoType.mesh);
                 if (count > 0)
                 {
-                    ws.Cells[startRow, 4].Value = count;
+                    ws.Cells[startRow, colIndex].Value = count;
                 }
 
+                colIndex++;
                 count = info.GetAssetCount(AssetFileInfoType.material);
                 if (count > 0)
                 {
-                    ws.Cells[startRow, 5].Value = count;
+                    ws.Cells[startRow, colIndex].Value = count;
                 }
 
+                colIndex++;
                 count = info.GetAssetCount(AssetFileInfoType.texture2D);
                 if (count > 0)
                 {
-                    ws.Cells[startRow, 6].Value = count;
+                    ws.Cells[startRow, colIndex].Value = count;
                 }
 
+                colIndex++;
                 count = info.GetAssetCount(AssetFileInfoType.sprite);
                 if (count > 0)
                 {
-                    ws.Cells[startRow, 7].Value = count;
+                    ws.Cells[startRow, colIndex].Value = count;
                 }
 
+                colIndex++;
                 count = info.GetAssetCount(AssetFileInfoType.shader);
                 if (count > 0)
                 {
-                    ws.Cells[startRow, 8].Value = count;
+                    ws.Cells[startRow, colIndex].Value = count;
                 }
 
+                colIndex++;
                 count = info.GetAssetCount(AssetFileInfoType.animationClip);
                 if (count > 0)
                 {
-                    ws.Cells[startRow, 9].Value = count;
+                    ws.Cells[startRow, colIndex].Value = count;
                 }
 
+                colIndex++;
                 count = info.GetAssetCount(AssetFileInfoType.audioClip);
                 if (count > 0)
                 {
-                    ws.Cells[startRow, 10].Value = count;
+                    ws.Cells[startRow, colIndex].Value = count;
                 }
 
                 startRow++;

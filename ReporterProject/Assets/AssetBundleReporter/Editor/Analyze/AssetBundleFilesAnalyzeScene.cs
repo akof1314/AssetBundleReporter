@@ -124,6 +124,8 @@ namespace WuHuan
         private IEnumerator AnalyzeBundleScene(Scene scene)
         {
             yield return new WaitForEndOfFrame();
+            Scene defaultScene = SceneManager.GetActiveScene();
+            SceneManager.SetActiveScene(scene);
 
             BundleSceneInfo info = m_BundleSceneInfos.Peek();
             if (info.sceneName != scene.name)
@@ -132,12 +134,14 @@ namespace WuHuan
                 yield break;
             }
 
+            AssetBundleFilesAnalyze.AnalyzeObjectReference(info.fileInfo, RenderSettings.skybox);
             GameObject[] gos = scene.GetRootGameObjects();
             foreach (var go in gos)
             {
                 AssetBundleFilesAnalyze.AnalyzeObjectComponent(info.fileInfo, go);
             }
             AssetBundleFilesAnalyze.AnalyzeObjectsCompleted(info.fileInfo);
+            SceneManager.SetActiveScene(defaultScene);
 
             info.ab.Unload(true);
             info.ab = null;

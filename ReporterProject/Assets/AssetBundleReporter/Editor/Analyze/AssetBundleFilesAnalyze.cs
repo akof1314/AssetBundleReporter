@@ -163,11 +163,13 @@ namespace WuHuan
             var bundles = assetBundleManifest.GetAllAssetBundles();
             foreach (var bundle in bundles)
             {
+                string path = Path.Combine(directoryPath, bundle);
                 AssetBundleFileInfo info = new AssetBundleFileInfo
                 {
                     name = bundle,
-                    path = Path.Combine(directoryPath, bundle),
+                    path = path,
                     rootPath = directoryPath,
+                    size = new FileInfo(path).Length,
                     directDepends = assetBundleManifest.GetDirectDependencies(bundle),
                     allDepends = assetBundleManifest.GetAllDependencies(bundle)
                 };
@@ -199,6 +201,7 @@ namespace WuHuan
                             name = file.Substring(directoryPath.Length + 1),
                             path = file,
                             rootPath = directoryPath,
+                            size = streamReader.BaseStream.Length,
                             directDepends = new string[] { },
                             allDepends = new string[] { }
                         };
@@ -273,7 +276,7 @@ namespace WuHuan
         /// </summary>
         /// <param name="info"></param>
         /// <param name="o"></param>
-        private static void AnalyzeObjectReference(AssetBundleFileInfo info, Object o)
+        public static void AnalyzeObjectReference(AssetBundleFileInfo info, Object o)
         {
             if (o == null || info.objDict.ContainsKey(o))
             {

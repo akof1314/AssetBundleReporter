@@ -25,6 +25,11 @@ namespace WuHuan
         public string rootPath;
 
         /// <summary>
+        /// 文件大小
+        /// </summary>
+        public long size;
+
+        /// <summary>
         /// 直接依赖的AssetBundle列表
         /// </summary>
         public string[] directDepends;
