@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections;
 using System.IO;
+using System.Reflection;
 using UnityEditor;
 
 public class BuildBundles
@@ -31,9 +32,11 @@ public class BuildBundles
     [MenuItem("Tool/Build Reporter")]
     public static void Reporter()
     {
+        //WuHuan.AssetBundleFilesAnalyze.analyzeExport = true;
+        //WuHuan.AssetBundleFilesAnalyze.analyzeOnlyScene = true;
         string directoryPath = Path.GetDirectoryName(Application.dataPath);
         string bundlePath = Path.Combine(directoryPath, GetBuildTarget().ToString());
         string outputPath = Path.Combine(directoryPath, GetBuildTarget().ToString() + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".xlsx");
-        AssetBundleReporter.Print(bundlePath, outputPath);
+        WuHuan.AssetBundleReporter.AnalyzePrint(bundlePath, outputPath, () => System.Diagnostics.Process.Start(outputPath));
     }
 }
