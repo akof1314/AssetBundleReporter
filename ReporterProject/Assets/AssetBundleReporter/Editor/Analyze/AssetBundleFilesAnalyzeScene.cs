@@ -158,6 +158,10 @@ namespace WuHuan
                 return;
             }
 
+            // 释放一下内存，以免爆掉
+            Resources.UnloadUnusedAssets();
+            GC.Collect();
+
             BundleSceneInfo info = m_BundleSceneInfos.Peek();
             info.ab = AssetBundle.LoadFromFile(info.fileInfo.path);
             SceneManager.LoadScene(info.sceneName, LoadSceneMode.Additive);

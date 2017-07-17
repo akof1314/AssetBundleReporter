@@ -36,6 +36,14 @@ namespace WuHuan
             }
             else if (type == "UnityEditor.MonoScript")
             {
+                MonoScript ms = o as MonoScript;
+                string type2 = ms.GetClass().ToString();
+                if (type2.StartsWith("UnityEngine."))
+                {
+                    // 内置的脚本对象也不显示出来
+                    return;
+                }
+
                 // 外部的组件脚本，保留下来
                 type = "MonoScript";
             }
@@ -43,6 +51,11 @@ namespace WuHuan
             {
                 // 外部的组件脚本，走上面的MonoScript
                 if (o as Component)
+                {
+                    return;
+                }
+                // 外部的序列化对象，已经被脚本给分析完毕了，不需要再添加进来
+                if (o as ScriptableObject)
                 {
                     return;
                 }

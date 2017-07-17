@@ -275,7 +275,7 @@ namespace WuHuan
         /// <param name="o"></param>
         private static void AnalyzeObjectReference(AssetBundleFileInfo info, Object o)
         {
-            if (info.objDict.ContainsKey(o))
+            if (o == null || info.objDict.ContainsKey(o))
             {
                 return;
             }
