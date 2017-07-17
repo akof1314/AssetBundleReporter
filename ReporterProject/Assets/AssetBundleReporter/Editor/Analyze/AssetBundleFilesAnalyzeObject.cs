@@ -41,6 +41,12 @@ namespace WuHuan
             }
             else
             {
+                // 外部的组件脚本，走上面的MonoScript
+                if (o as Component)
+                {
+                    return;
+                }
+
                 Debug.LogError("What's this? " + type);
                 return;
             }
@@ -52,8 +58,17 @@ namespace WuHuan
                 return;
             }
 
-            SerializedProperty pathIdProp = serializedObject.FindProperty("m_LocalIdentfierInFile");
-            long guid = pathIdProp.longValue;
+            long guid;
+            if (info.isScene)
+            {
+                // 场景的话，没法根据PathID来确定唯一性，那么就认为每个场景用到的资源都不一样
+                guid = (info.name + name2 + type).GetHashCode();
+            }
+            else
+            {
+                SerializedProperty pathIdProp = serializedObject.FindProperty("m_LocalIdentfierInFile");
+                guid = pathIdProp.longValue;
+            }
 
             if (info.IsAssetContain(guid))
             {

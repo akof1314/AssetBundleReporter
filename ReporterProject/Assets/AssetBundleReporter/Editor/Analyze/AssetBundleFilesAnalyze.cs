@@ -25,6 +25,11 @@ namespace WuHuan
         /// </summary>
         public static bool analyzeExport { get; set; }
 
+        /// <summary>
+        /// 分析的时候，只分析场景，这需要播放运行才能分析场景
+        /// </summary>
+        public static bool analyzeOnlyScene { get; set; }
+
         #endregion
 
         #region 内部实现
@@ -236,16 +241,20 @@ namespace WuHuan
                     {
                         if (!ab.isStreamedSceneAssetBundle)
                         {
-                            Object[] objs = ab.LoadAllAssets<Object>();
-                            foreach (var o in objs)
+                            if (!analyzeOnlyScene)
                             {
-                                AnalyzeObjectReference(info, o);
-                                AnalyzeObjectComponent(info, o);
+                                Object[] objs = ab.LoadAllAssets<Object>();
+                                foreach (var o in objs)
+                                {
+                                    AnalyzeObjectReference(info, o);
+                                    AnalyzeObjectComponent(info, o);
+                                }
+                                AnalyzeObjectsCompleted(info);
                             }
-                            AnalyzeObjectsCompleted(info);
                         }
                         else
                         {
+                            info.isScene = true;
                             sAnalyzeScene.AddBundleSceneInfo(info, ab.GetAllScenePaths());
                         }
                     }

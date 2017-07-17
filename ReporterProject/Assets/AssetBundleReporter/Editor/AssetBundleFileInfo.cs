@@ -52,7 +52,12 @@ namespace WuHuan
         /// <summary>
         /// 包含的全部对象字典（方便不会重复添加）
         /// </summary>
-        public Dictionary<Object, SerializedObject> objDict = new Dictionary<Object, SerializedObject>(); 
+        public Dictionary<Object, SerializedObject> objDict = new Dictionary<Object, SerializedObject>();
+
+        /// <summary>
+        /// 是否是场景 AB 包
+        /// </summary>
+        public bool isScene;
 
         public override string ToString()
         {
