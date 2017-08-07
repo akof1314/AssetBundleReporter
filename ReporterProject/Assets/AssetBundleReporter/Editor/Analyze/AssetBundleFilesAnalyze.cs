@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -300,6 +301,26 @@ namespace WuHuan
                     AnalyzeObjectReference(info, it.objectReferenceValue);
                 }
             }
+
+            // 只能用另一种方式获取的引用
+            AnalyzeObjectReference2(info, o);
+        }
+
+        /// <summary>
+        /// 动画控制器比较特殊，不能通过序列化得到
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="o"></param>
+        private static void AnalyzeObjectReference2(AssetBundleFileInfo info, Object o)
+        {
+            AnimatorController ac = o as AnimatorController;
+            if (ac)
+            {
+                foreach (var clip in ac.animationClips)
+                {
+                    AnalyzeObjectReference(info, clip);
+                }
+            }
         }
 
         /// <summary>
@@ -324,13 +345,6 @@ namespace WuHuan
                 }
 
                 AnalyzeObjectReference(info, component);
-                if (component as MonoBehaviour)
-                {
-                }
-                else
-                {
-                    AnalyzeAnimator(info, component);
-                }
             }
         }
 
@@ -342,38 +356,6 @@ namespace WuHuan
                 kv.Value.Dispose();
             }
             info.objDict.Clear();
-        }
-
-        /// <summary>
-        /// 动画控制器比较特殊，不能通过序列化得到
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="o"></param>
-        private static void AnalyzeAnimator(AssetBundleFileInfo info, Object o)
-        {
-            var animator = o as Animator;
-            if (!animator)
-            {
-                return;
-            }
-
-            RuntimeAnimatorController rac = animator.runtimeAnimatorController;
-            if (!rac)
-            {
-                return;
-            }
-
-            AnimatorOverrideController aoc = rac as AnimatorOverrideController;
-            if (aoc)
-            {
-            }
-            else
-            {
-                foreach (var clip in rac.animationClips)
-                {
-                    AnalyzeObjectReference(info, clip);
-                }
-            }
         }
 
         #endregion
