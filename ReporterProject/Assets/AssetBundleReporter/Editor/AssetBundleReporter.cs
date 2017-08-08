@@ -28,6 +28,12 @@ namespace WuHuan
             AnalyzePrint(bundlePath, outputPath);
         }
 
+        /// <summary>
+        /// 分析打印 AssetBundle
+        /// </summary>
+        /// <param name="bundlePath">AssetBundle 文件所在文件夹路径</param>
+        /// <param name="outputPath">Excel 报告文件保存路径</param>
+        /// <param name="completed">分析打印完毕后的回调</param>
         public static void AnalyzePrint(string bundlePath, string outputPath, UnityAction completed = null)
         {
             AssetBundleFilesAnalyze.analyzeCompleted = () =>
