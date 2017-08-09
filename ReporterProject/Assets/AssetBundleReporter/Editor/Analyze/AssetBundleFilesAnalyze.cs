@@ -3,7 +3,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+#if UNITY_5
 using UnityEditor.Animations;
+#else
+using UnityEditorInternal;
+#endif
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -14,7 +18,7 @@ namespace WuHuan
     /// </summary>
     public static class AssetBundleFilesAnalyze
     {
-        #region 对外接口
+#region 对外接口
 
         /// <summary>
         /// 自定义分析依赖
@@ -31,9 +35,9 @@ namespace WuHuan
         /// </summary>
         public static bool analyzeOnlyScene { get; set; }
 
-        #endregion
+#endregion
 
-        #region 内部实现
+#region 内部实现
 
         private static List<AssetBundleFileInfo> sAssetBundleFileInfos;
         private static Dictionary<long, AssetFileInfo> sAssetFileInfos;
@@ -94,7 +98,7 @@ namespace WuHuan
             }
             sAnalyzeScene = null;
 
-            EditorUtility.UnloadUnusedAssetsImmediate();
+            //EditorUtility.UnloadUnusedAssetsImmediate();
             System.GC.Collect();
         }
 
@@ -112,7 +116,9 @@ namespace WuHuan
             }
             if (sAssetBundleFileInfos == null)
             {
+#if UNITY_5
                 sAssetBundleFileInfos = AnalyzeManifestDepend(directoryPath);
+#endif
             }
             if (sAssetBundleFileInfos == null)
             {
@@ -148,11 +154,14 @@ namespace WuHuan
             string manifestPath = Path.Combine(directoryPath, manifestName);
             if (!File.Exists(manifestPath))
             {
-                Debug.LogError(manifestPath + " is not exists!");
+                Debug.LogWarning(manifestPath + " is not exists! Use AnalyzAllFiles ...");
                 return null;
             }
-
+#if UNITY_5_3_OR_NEWER
             AssetBundle manifestAb = AssetBundle.LoadFromFile(manifestPath);
+#else
+            AssetBundle manifestAb = AssetBundle.CreateFromMemoryImmediate(File.ReadAllBytes(manifestPath));
+#endif
             if (!manifestAb)
             {
                 Debug.LogError(manifestPath + " ab load faild!");
@@ -160,6 +169,7 @@ namespace WuHuan
             }
 
             List<AssetBundleFileInfo> infos = new List<AssetBundleFileInfo>();
+#if UNITY_5
             AssetBundleManifest assetBundleManifest = manifestAb.LoadAsset<AssetBundleManifest>("assetbundlemanifest");
             var bundles = assetBundleManifest.GetAllAssetBundles();
             foreach (var bundle in bundles)
@@ -176,6 +186,7 @@ namespace WuHuan
                 };
                 infos.Add(info);
             }
+#endif
             manifestAb.Unload(true);
             return infos;
         }
@@ -238,16 +249,28 @@ namespace WuHuan
             // 以下不能保证百分百找到所有的资源，最准确的方式是解密AssetBundle格式
             foreach (var info in infos)
             {
+#if UNITY_5_3_OR_NEWER
                 AssetBundle ab = AssetBundle.LoadFromFile(info.path);
+#else
+                AssetBundle ab = AssetBundle.CreateFromMemoryImmediate(File.ReadAllBytes(info.path));
+#endif
                 if (ab)
                 {
                     try
                     {
+#if UNITY_5_3_OR_NEWER
                         if (!ab.isStreamedSceneAssetBundle)
+#else
+                        if (true)
+#endif
                         {
                             if (!analyzeOnlyScene)
                             {
+#if UNITY_5
                                 Object[] objs = ab.LoadAllAssets<Object>();
+#else
+                                Object[] objs = ab.LoadAll();
+#endif
                                 foreach (var o in objs)
                                 {
                                     AnalyzeObjectReference(info, o);
@@ -258,8 +281,10 @@ namespace WuHuan
                         }
                         else
                         {
+#if UNITY_5_3_OR_NEWER
                             info.isScene = true;
                             sAnalyzeScene.AddBundleSceneInfo(info, ab.GetAllScenePaths());
+#endif
                         }
                     }
                     finally
@@ -316,12 +341,45 @@ namespace WuHuan
             AnimatorController ac = o as AnimatorController;
             if (ac)
             {
+#if UNITY_5
                 foreach (var clip in ac.animationClips)
                 {
                     AnalyzeObjectReference(info, clip);
                 }
+#else
+                List<State> list = new List<State>();
+                for (int i = 0; i < ac.layerCount; i++)
+                {
+                    AnimatorControllerLayer layer = ac.GetLayer(i);
+                    list.AddRange(AnimatorStateMachine_StatesRecursive(layer.stateMachine));
+                }
+                foreach (var state in list)
+                {
+                    var clip = state.GetMotion() as AnimationClip;
+                    if (clip)
+                    {
+                        AnalyzeObjectReference(info, clip);
+                    }
+                }
+#endif
             }
         }
+
+#if !UNITY_5
+        private static List<State> AnimatorStateMachine_StatesRecursive(StateMachine stateMachine)
+        {
+            List<State> list = new List<State>();
+            for (int i = 0; i < stateMachine.stateCount; i++)
+            {
+                list.Add(stateMachine.GetState(i));
+            }
+            for (int i = 0; i < stateMachine.stateMachineCount; i++)
+            {
+                list.AddRange(AnimatorStateMachine_StatesRecursive(stateMachine.GetStateMachine(i)));
+            }
+            return list;
+        }
+#endif
 
         /// <summary>
         /// 分析脚本的引用（这只在脚本在工程里时才有效）
@@ -358,6 +416,6 @@ namespace WuHuan
             info.objDict.Clear();
         }
 
-        #endregion
+#endregion
     }
 }

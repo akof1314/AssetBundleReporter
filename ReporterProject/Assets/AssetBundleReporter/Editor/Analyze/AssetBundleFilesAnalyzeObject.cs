@@ -34,6 +34,10 @@ namespace WuHuan
             {
                 type = "AnimatorController";
             }
+            else if (type == "UnityEditorInternal.AnimatorController")
+            {
+                type = "AnimatorController";
+            }
             else if (type == "UnityEditor.MonoScript")
             {
                 MonoScript ms = o as MonoScript;
@@ -80,7 +84,11 @@ namespace WuHuan
             else
             {
                 SerializedProperty pathIdProp = serializedObject.FindProperty("m_LocalIdentfierInFile");
+#if UNITY_5
                 guid = pathIdProp.longValue;
+#else
+                guid = pathIdProp.intValue;
+#endif
             }
 
             if (info.IsAssetContain(guid))
@@ -214,14 +222,23 @@ namespace WuHuan
         {
             var propertys = new List<KeyValuePair<string, object>>
             {
+#if UNITY_5
                 new KeyValuePair<string, object>("加载方式", audioClip.loadType.ToString()),
                 new KeyValuePair<string, object>("预加载", audioClip.preloadAudioData.ToString()),
+#endif
                 new KeyValuePair<string, object>("频率", audioClip.frequency),
                 new KeyValuePair<string, object>("长度", audioClip.length)
             };
 
+#if UNITY_5
             var property = serializedObject.FindProperty("m_CompressionFormat");
             propertys.Add(new KeyValuePair<string, object>("格式", ((AudioCompressionFormat)property.intValue).ToString()));
+#else
+            var property = serializedObject.FindProperty("m_Stream");
+            propertys.Add(new KeyValuePair<string, object>("加载方式", ((AudioImporterLoadType)property.intValue).ToString()));
+            property = serializedObject.FindProperty("m_Type");
+            propertys.Add(new KeyValuePair<string, object>("格式", ((AudioType)property.intValue).ToString()));
+#endif
 
             return propertys;
         }
@@ -235,7 +252,11 @@ namespace WuHuan
                 new KeyValuePair<string, object>("Constant曲线数", stats.constantCurves),
                 new KeyValuePair<string, object>("Dense曲线数", stats.denseCurves),
                 new KeyValuePair<string, object>("Stream曲线数", stats.streamCurves),
+#if UNITY_5
                 new KeyValuePair<string, object>("事件数", clip.events.Length),
+#else
+                new KeyValuePair<string, object>("事件数", AnimationUtility.GetAnimationEvents(clip).Length),
+#endif
                 new KeyValuePair<string, object>("内存占用", stats.size),
             };
             return propertys;

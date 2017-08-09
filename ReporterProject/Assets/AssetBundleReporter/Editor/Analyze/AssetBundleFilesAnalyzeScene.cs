@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+#if UNITY_5_4_OR_NEWER
 using UnityEngine.SceneManagement;
+#endif
 
 namespace WuHuan
 {
@@ -14,10 +16,12 @@ namespace WuHuan
 
         private class BundleSceneInfo
         {
+#if UNITY_5_4_OR_NEWER
             public AssetBundle ab;
             public string sceneName;
             public string scenePath;
             public AssetBundleFileInfo fileInfo;
+#endif
         }
 
         private readonly Queue<BundleSceneInfo> m_BundleSceneInfos = new Queue<BundleSceneInfo>();
@@ -25,6 +29,7 @@ namespace WuHuan
 
         public void AddBundleSceneInfo(AssetBundleFileInfo info, string[] scenePaths)
         {
+#if UNITY_5_4_OR_NEWER
             foreach (var scenePath in scenePaths)
             {
                 m_BundleSceneInfos.Enqueue(new BundleSceneInfo()
@@ -34,14 +39,17 @@ namespace WuHuan
                     scenePath = scenePath
                 });
             }
+#endif
         }
 
         public void Analyze()
         {
+#if UNITY_5_4_OR_NEWER
             if (m_BundleSceneInfos.Count > 0)
             {
                 AnalyzeInter();
             }
+#endif
         }
 
         public bool IsAnalyzing()
@@ -49,6 +57,7 @@ namespace WuHuan
             return m_BundleSceneInfos.Count > 0;
         }
 
+#if UNITY_5_4_OR_NEWER
         private void AnalyzeInter()
         {
             if (EditorApplication.isPlaying)
@@ -183,5 +192,6 @@ namespace WuHuan
 
             m_BundleSceneInfos.Clear();
         }
+#endif
     }
 }
