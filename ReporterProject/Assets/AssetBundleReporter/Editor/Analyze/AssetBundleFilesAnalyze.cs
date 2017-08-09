@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
-#if UNITY_5
+#if UNITY_5 || UNITY_5_3_OR_NEWER
 using UnityEditor.Animations;
 #else
 using UnityEditorInternal;
@@ -116,7 +116,7 @@ namespace WuHuan
             }
             if (sAssetBundleFileInfos == null)
             {
-#if UNITY_5
+#if UNITY_5 || UNITY_5_3_OR_NEWER
                 sAssetBundleFileInfos = AnalyzeManifestDepend(directoryPath);
 #endif
             }
@@ -169,7 +169,7 @@ namespace WuHuan
             }
 
             List<AssetBundleFileInfo> infos = new List<AssetBundleFileInfo>();
-#if UNITY_5
+#if UNITY_5 || UNITY_5_3_OR_NEWER
             AssetBundleManifest assetBundleManifest = manifestAb.LoadAsset<AssetBundleManifest>("assetbundlemanifest");
             var bundles = assetBundleManifest.GetAllAssetBundles();
             foreach (var bundle in bundles)
@@ -266,7 +266,7 @@ namespace WuHuan
                         {
                             if (!analyzeOnlyScene)
                             {
-#if UNITY_5
+#if UNITY_5 || UNITY_5_3_OR_NEWER
                                 Object[] objs = ab.LoadAllAssets<Object>();
 #else
                                 Object[] objs = ab.LoadAll();
@@ -338,22 +338,22 @@ namespace WuHuan
         /// <param name="o"></param>
         private static void AnalyzeObjectReference2(AssetBundleFileInfo info, Object o)
         {
-            AnimatorController ac = o as AnimatorController;
+            UnityEditor.Animations.AnimatorController ac = o as UnityEditor.Animations.AnimatorController;
             if (ac)
             {
-#if UNITY_5
+#if UNITY_5 || UNITY_5_3_OR_NEWER
                 foreach (var clip in ac.animationClips)
                 {
                     AnalyzeObjectReference(info, clip);
                 }
 #else
-                List<State> list = new List<State>();
+                List<UnityEditor.Animations.AnimatorState> list = new List<UnityEditor.Animations.AnimatorState>();
                 for (int i = 0; i < ac.layerCount; i++)
                 {
-                    AnimatorControllerLayer layer = ac.GetLayer(i);
+                    UnityEditor.Animations.AnimatorControllerLayer layer = ac.GetLayer(i);
                     list.AddRange(AnimatorStateMachine_StatesRecursive(layer.stateMachine));
                 }
-                foreach (var state in list)
+                foreach (UnityEditor.Animations.AnimatorState state in list)
                 {
                     var clip = state.GetMotion() as AnimationClip;
                     if (clip)
@@ -365,10 +365,10 @@ namespace WuHuan
             }
         }
 
-#if !UNITY_5
-        private static List<State> AnimatorStateMachine_StatesRecursive(StateMachine stateMachine)
+#if !(UNITY_5 || UNITY_5_3_OR_NEWER)
+        private static List<UnityEditor.Animations.AnimatorState> AnimatorStateMachine_StatesRecursive(UnityEditor.Animations.AnimatorStateMachine stateMachine)
         {
-            List<State> list = new List<State>();
+            List<UnityEditor.Animations.AnimatorState> list = new List<UnityEditor.Animations.AnimatorState>();
             for (int i = 0; i < stateMachine.stateCount; i++)
             {
                 list.Add(stateMachine.GetState(i));

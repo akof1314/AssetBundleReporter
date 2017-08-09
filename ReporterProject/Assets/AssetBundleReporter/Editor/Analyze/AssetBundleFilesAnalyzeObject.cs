@@ -84,7 +84,7 @@ namespace WuHuan
             else
             {
                 SerializedProperty pathIdProp = serializedObject.FindProperty("m_LocalIdentfierInFile");
-#if UNITY_5
+#if UNITY_5 || UNITY_5_3_OR_NEWER
                 guid = pathIdProp.longValue;
 #else
                 guid = pathIdProp.intValue;
@@ -222,7 +222,7 @@ namespace WuHuan
         {
             var propertys = new List<KeyValuePair<string, object>>
             {
-#if UNITY_5
+#if UNITY_5 || UNITY_5_3_OR_NEWER
                 new KeyValuePair<string, object>("加载方式", audioClip.loadType.ToString()),
                 new KeyValuePair<string, object>("预加载", audioClip.preloadAudioData.ToString()),
 #endif
@@ -230,12 +230,12 @@ namespace WuHuan
                 new KeyValuePair<string, object>("长度", audioClip.length)
             };
 
-#if UNITY_5
+#if UNITY_5 || UNITY_5_3_OR_NEWER
             var property = serializedObject.FindProperty("m_CompressionFormat");
             propertys.Add(new KeyValuePair<string, object>("格式", ((AudioCompressionFormat)property.intValue).ToString()));
 #else
             var property = serializedObject.FindProperty("m_Stream");
-            propertys.Add(new KeyValuePair<string, object>("加载方式", ((AudioImporterLoadType)property.intValue).ToString()));
+            propertys.Add(new KeyValuePair<string, object>("加载方式", ((AudioClipLoadType)property.intValue).ToString()));
             property = serializedObject.FindProperty("m_Type");
             propertys.Add(new KeyValuePair<string, object>("格式", ((AudioType)property.intValue).ToString()));
 #endif
@@ -252,7 +252,7 @@ namespace WuHuan
                 new KeyValuePair<string, object>("Constant曲线数", stats.constantCurves),
                 new KeyValuePair<string, object>("Dense曲线数", stats.denseCurves),
                 new KeyValuePair<string, object>("Stream曲线数", stats.streamCurves),
-#if UNITY_5
+#if UNITY_5 || UNITY_5_3_OR_NEWER
                 new KeyValuePair<string, object>("事件数", clip.events.Length),
 #else
                 new KeyValuePair<string, object>("事件数", AnimationUtility.GetAnimationEvents(clip).Length),
