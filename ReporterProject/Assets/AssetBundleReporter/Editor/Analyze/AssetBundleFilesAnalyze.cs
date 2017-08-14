@@ -18,7 +18,7 @@ namespace WuHuan
     /// </summary>
     public static class AssetBundleFilesAnalyze
     {
-#region 对外接口
+        #region 对外接口
 
         /// <summary>
         /// 自定义分析依赖
@@ -35,9 +35,9 @@ namespace WuHuan
         /// </summary>
         public static bool analyzeOnlyScene { get; set; }
 
-#endregion
+        #endregion
 
-#region 内部实现
+        #region 内部实现
 
         private static List<AssetBundleFileInfo> sAssetBundleFileInfos;
         private static Dictionary<long, AssetFileInfo> sAssetFileInfos;
@@ -98,7 +98,9 @@ namespace WuHuan
             }
             sAnalyzeScene = null;
 
-            //EditorUtility.UnloadUnusedAssetsImmediate();
+#if UNITY_5 || UNITY_5_3_OR_NEWER
+            EditorUtility.UnloadUnusedAssetsImmediate();
+#endif
             System.GC.Collect();
         }
 
@@ -338,7 +340,7 @@ namespace WuHuan
         /// <param name="o"></param>
         private static void AnalyzeObjectReference2(AssetBundleFileInfo info, Object o)
         {
-            UnityEditor.Animations.AnimatorController ac = o as UnityEditor.Animations.AnimatorController;
+            AnimatorController ac = o as AnimatorController;
             if (ac)
             {
 #if UNITY_5 || UNITY_5_3_OR_NEWER
@@ -347,13 +349,13 @@ namespace WuHuan
                     AnalyzeObjectReference(info, clip);
                 }
 #else
-                List<UnityEditor.Animations.AnimatorState> list = new List<UnityEditor.Animations.AnimatorState>();
+                List<State> list = new List<State>();
                 for (int i = 0; i < ac.layerCount; i++)
                 {
-                    UnityEditor.Animations.AnimatorControllerLayer layer = ac.GetLayer(i);
+                    AnimatorControllerLayer layer = ac.GetLayer(i);
                     list.AddRange(AnimatorStateMachine_StatesRecursive(layer.stateMachine));
                 }
-                foreach (UnityEditor.Animations.AnimatorState state in list)
+                foreach (State state in list)
                 {
                     var clip = state.GetMotion() as AnimationClip;
                     if (clip)
@@ -366,9 +368,9 @@ namespace WuHuan
         }
 
 #if !(UNITY_5 || UNITY_5_3_OR_NEWER)
-        private static List<UnityEditor.Animations.AnimatorState> AnimatorStateMachine_StatesRecursive(UnityEditor.Animations.AnimatorStateMachine stateMachine)
+        private static List<State> AnimatorStateMachine_StatesRecursive(StateMachine stateMachine)
         {
-            List<UnityEditor.Animations.AnimatorState> list = new List<UnityEditor.Animations.AnimatorState>();
+            List<State> list = new List<State>();
             for (int i = 0; i < stateMachine.stateCount; i++)
             {
                 list.Add(stateMachine.GetState(i));
@@ -416,6 +418,6 @@ namespace WuHuan
             info.objDict.Clear();
         }
 
-#endregion
+        #endregion
     }
 }

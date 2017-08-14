@@ -235,7 +235,7 @@ namespace WuHuan
             propertys.Add(new KeyValuePair<string, object>("格式", ((AudioCompressionFormat)property.intValue).ToString()));
 #else
             var property = serializedObject.FindProperty("m_Stream");
-            propertys.Add(new KeyValuePair<string, object>("加载方式", ((AudioClipLoadType)property.intValue).ToString()));
+            propertys.Add(new KeyValuePair<string, object>("加载方式", ((AudioImporterLoadType)property.intValue).ToString()));
             property = serializedObject.FindProperty("m_Type");
             propertys.Add(new KeyValuePair<string, object>("格式", ((AudioType)property.intValue).ToString()));
 #endif
