@@ -12,6 +12,9 @@ Unity AssetBundle 冗余检测与资源分析
 ## 实现过程
 详见 http://blog.csdn.net/akof1314/article/details/78141789
 
+## 支持平台
+目前仅支持 Windows 平台，Mac 平台需自行解决 gdiplus.dll 报错问题。
+
 ## 使用说明
 将插件包导入到工程，打包 AssetBundle 之后，调用检测的接口，如下所示：
 ```
