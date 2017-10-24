@@ -83,7 +83,7 @@ namespace WuHuan
                     ws.Cells[startRow, startCol].Hyperlink = fileInfo.detailHyperLink;
 
                     // 冗余则红色显示
-                    if (fileInfo.includedBundles.Count > 1)
+                    if (fileInfo.includedBundles.Count > 1 && fileInfo.type != AssetFileInfoType.monoScript)
                     {
                         ws.Cells[startRow, startCol].Style.Font.Color.SetColor(redColor);
                     }
@@ -119,6 +119,10 @@ namespace WuHuan
                 int dependRow = titleRow;
                 foreach (var depend in info.allDepends)
                 {
+                    if (string.IsNullOrEmpty(depend))
+                    {
+                        continue;
+                    }
                     dependRow++;
                     var dependInfo = AssetBundleFilesAnalyze.GetAssetBundleFileInfo(depend);
                     ws.Cells[dependRow, 3].Value = dependInfo.name;

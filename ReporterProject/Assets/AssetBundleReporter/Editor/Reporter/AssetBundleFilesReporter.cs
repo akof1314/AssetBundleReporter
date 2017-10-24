@@ -80,7 +80,7 @@ namespace WuHuan
                 count = 0;
                 foreach (var asset in info.assets)
                 {
-                    if (asset.includedBundles.Count > 1)
+                    if (asset.includedBundles.Count > 1 && asset.type != AssetFileInfoType.monoScript)
                     {
                         count++;
                     }
