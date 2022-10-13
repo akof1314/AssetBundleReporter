@@ -85,7 +85,7 @@ namespace WuHuan
                 Scene scene = SceneManager.GetSceneAt(i);
                 if (scene != defaultScene)
                 {
-                    SceneManager.UnloadScene(scene);
+                    SceneManager.UnloadSceneAsync(scene);
                 }
             }
             SceneManager.SetActiveScene(defaultScene);
@@ -97,19 +97,19 @@ namespace WuHuan
             LoadNextBundleScene();
         }
 
-        private void PlaymodeStateChanged()
-        {
-            if (EditorApplication.isPaused)
-            {
-                return;
-            }
-            if (!(EditorApplication.isPlaying && EditorApplication.isPlayingOrWillChangePlaymode))
-            {
-                return;
-            }
-            EditorApplication.playmodeStateChanged -= PlaymodeStateChanged;
-            AnalyzeBundleScenePrepare();
-        }
+//        private void PlaymodeStateChanged()
+//        {
+//            if (EditorApplication.isPaused)
+//            {
+//                return;
+//            }
+//            if (!(EditorApplication.isPlaying && EditorApplication.isPlayingOrWillChangePlaymode))
+//            {
+//                return;
+//            }
+//            EditorApplication.playmodeStateChanged -= PlaymodeStateChanged;
+//            AnalyzeBundleScenePrepare();
+//        }
 
         private void SceneManagerOnSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
         {
@@ -154,7 +154,7 @@ namespace WuHuan
 
             info.ab.Unload(true);
             info.ab = null;
-            SceneManager.UnloadScene(scene);
+            yield return SceneManager.UnloadSceneAsync(scene);
         }
 
         private void LoadNextBundleScene()
