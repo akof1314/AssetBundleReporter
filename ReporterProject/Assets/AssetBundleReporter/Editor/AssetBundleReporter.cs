@@ -67,9 +67,9 @@ namespace WuHuan
                 AssetBundleDetailsReporter.CreateWorksheet(package.Workbook.Worksheets);
                 AssetBundleResReporter.CreateWorksheet(package.Workbook.Worksheets);
 
-                AssetBundleFilesReporter.FillWorksheet(package.Workbook.Worksheets[1]);
-                AssetBundleDetailsReporter.FillWorksheet(package.Workbook.Worksheets[2]);
-                AssetBundleResReporter.FillWorksheet(package.Workbook.Worksheets[3]);
+                AssetBundleFilesReporter.FillWorksheet(package.Workbook.Worksheets[0]);
+                AssetBundleDetailsReporter.FillWorksheet(package.Workbook.Worksheets[1]);
+                AssetBundleResReporter.FillWorksheet(package.Workbook.Worksheets[2]);
 
                 AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, AssetFileInfoType.mesh);
                 AssetBundlePropertyReporter.CreateAndFillWorksheet(package.Workbook.Worksheets, AssetFileInfoType.texture2D);
